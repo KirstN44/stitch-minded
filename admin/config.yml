@@ -2,8 +2,6 @@ backend:
   name: github
   repo: KirstN44/stitch-minded
   branch: main
-use_graphql: false
-
 media_folder: "assets/images"
 public_folder: "/assets/images"
 
