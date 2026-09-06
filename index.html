@@ -190,26 +190,22 @@
 
     </section>
 
-    <!-- Blog Section -->
-    <section class="blog-section">
-      <h2>Latest Notes & Articles</h2>
-      
-      <div class="blog-item">
-        <div>
-          <h4>Working Tunisian Crochet in the Round</h4>
-          <p>Techniques for using double-ended cable hooks on seamless beanie projects.</p>
-        </div>
-        <a href="#" style="color: var(--accent); font-weight: 600; text-decoration: none;">Read &rarr;</a>
+   <!-- Blog Section -->
+<section class="blog-section">
+  <h2>Latest Notes & Articles</h2>
+  
+  {% for post in site.posts %}
+    <div class="blog-item">
+      <div>
+        <h4>{{ post.title }}</h4>
+        <p>{{ post.excerpt | strip_html | truncate: 120 }}</p>
       </div>
-
-      <div class="blog-item">
-        <div>
-          <h4>Building Interactive Games for Learning</h4>
-          <p>Behind the scenes on how Word Orbit and Maths Orbit were designed.</p>
-        </div>
-        <a href="#" style="color: var(--accent); font-weight: 600; text-decoration: none;">Read &rarr;</a>
-      </div>
-    </section>
+      <a href="{{ post.url | relative_url }}" style="color: var(--accent); font-weight: 600; text-decoration: none;">Read &rarr;</a>
+    </div>
+  {% else %}
+    <p>No posts published yet!</p>
+  {% endfor %}
+</section>
   </main>
 
   <footer>
