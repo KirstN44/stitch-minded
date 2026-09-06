@@ -2,3 +2,5 @@ title: Stitch Minded
 description: Where Fiber Arts Meets Creative Logic
 theme: minima
 permalink: /posts/:title/
+url: "https://kirstn44.github.io" # Replace with your actual domain/GitHub Pages URL (no trailing slash)
+baseurl: "/stitch-minded"         # Keep empty "" if using a custom root domain
