@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stitch Minded | Fiber Arts & Creative Tech</title>
+  <style>
+    :root {
+      --primary: #2d3748;
+      --accent: #7c3aed;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      background-color: var(--bg);
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: var(--primary);
+      color: white;
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      letter-spacing: -0.025em;
+    }
+
+    header p {
+      margin-top: 0.5rem;
+      opacity: 0.9;
+      font-size: 1.1rem;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border: 1px solid #e2e8f0;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      color: var(--accent);
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Stitch Minded</h1>
+    <p>Where Fiber Arts Meets Creative Logic</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>Welcome to Stitch Minded</h2>
+      <p>Exploring the intersection of knitting, crochet, and digital builds. From custom yarn pattern calculators to interactive learning apps.</p>
+    </section>
+
+    <section>
+      <h2>Featured Sections</h2>
+      <div class="grid">
+        
+        <div class="card">
+          <h3>Knitting & Crochet</h3>
+          <p>Explore free pattern guides, stitch techniques, and Tunisian crochet projects.</p>
+          <a href="#">View Crafts &rarr;</a>
+        </div>
+
+        <div class="card">
+          <h3>Digital Apps & Tools</h3>
+          <p>Check out interactive web tools like Word Orbit, Maths Orbit, and stitch calculators.</p>
+          <a href="#">Explore Apps &rarr;</a>
+        </div>
+
+        <div class="card">
+          <h3>AI Concepts</h3>
+          <p>Visual mood boards, pattern experiments, and digital art inspirations.</p>
+          <a href="#">View Gallery &rarr;</a>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Stitch Minded. Built on GitHub Pages.</p>
+  </footer>
+
+</body>
+</html>
