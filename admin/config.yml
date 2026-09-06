@@ -2,6 +2,8 @@ backend:
   name: github
   repo: KirstN44/stitch-minded
   branch: main
+  base_url: https://stitch-minded.wintosyway.workers.dev
+  auth_endpoint: auth
 media_folder: "assets/images"
 public_folder: "/assets/images"
 
