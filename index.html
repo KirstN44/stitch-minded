@@ -6,11 +6,12 @@
   <title>Stitch Minded | Fiber Arts & Creative Tech</title>
   <style>
     :root {
-      --primary: #2d3748;
+      --primary: #1e293b;
       --accent: #7c3aed;
       --bg: #f8fafc;
       --card-bg: #ffffff;
-      --text: #1e293b;
+      --text: #0f172a;
+      --border: #e2e8f0;
     }
 
     body {
@@ -23,65 +24,117 @@
     }
 
     header {
-      background-color: var(--primary);
+      background: linear-gradient(rgba(30, 41, 59, 0.88), rgba(30, 41, 59, 0.88)), 
+                  url('https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
       color: white;
       text-align: center;
-      padding: 3rem 1rem;
+      padding: 4.5rem 1rem;
     }
 
     header h1 {
       margin: 0;
-      font-size: 2.5rem;
+      font-size: 2.75rem;
       letter-spacing: -0.025em;
     }
 
     header p {
       margin-top: 0.5rem;
       opacity: 0.9;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
     }
 
     main {
       max-width: 900px;
-      margin: 2rem auto;
-      padding: 0 1rem;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-top: 1rem;
+    .intro {
+      margin-bottom: 3rem;
     }
 
-    .card {
-      background: var(--card-bg);
-      border-radius: 8px;
-      padding: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      border: 1px solid #e2e8f0;
-    }
-
-    .card h3 {
+    .intro h2 {
       margin-top: 0;
-      color: var(--accent);
+      font-size: 1.75rem;
     }
 
-    footer {
-      text-align: center;
-      padding: 2rem 1rem;
+    /* Two-Column Split Grid */
+    .hub-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 3rem;
+    }
+
+    .column h2 {
+      font-size: 1.4rem;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.5rem;
+      margin-top: 0;
+    }
+
+    .link-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 1.25rem;
+    }
+
+    .link-list li {
+      margin-bottom: 1rem;
+    }
+
+    .link-list a {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-block;
+      transition: transform 0.15s ease;
+    }
+
+    .link-list a:hover {
+      transform: translateX(4px);
+      text-decoration: underline;
+    }
+
+    .link-list p {
+      margin: 0.2rem 0 0 0;
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+
+    /* Minimal Blog Section */
+    .blog-section {
+      margin-top: 4rem;
+      border-top: 1px solid var(--border);
+      padding-top: 2rem;
+    }
+
+    .blog-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .blog-item h4 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .blog-item p {
+      margin: 0.2rem 0 0 0;
       font-size: 0.875rem;
       color: #64748b;
     }
 
-    a {
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    a:hover {
-      text-decoration: underline;
+    footer {
+      text-align: center;
+      padding: 3rem 1rem;
+      font-size: 0.875rem;
+      color: #64748b;
+      border-top: 1px solid var(--border);
+      margin-top: 4rem;
     }
   </style>
 </head>
@@ -93,33 +146,68 @@
   </header>
 
   <main>
-    <section>
-      <h2>Welcome to Stitch Minded</h2>
-      <p>Exploring the intersection of knitting, crochet, and digital builds. From custom yarn pattern calculators to interactive learning apps.</p>
+    <section class="intro">
+      <h2>Welcome</h2>
+      <p>A digital space bringing together traditional handcrafts and interactive web tools. Explore physical yarn patterns, design calculators, and logic-based learning games built for creators.</p>
     </section>
 
-    <section>
-      <h2>Featured Sections</h2>
-      <div class="grid">
+    <!-- Option B: Two-Column Hub Split -->
+    <section class="hub-grid">
+      
+      <!-- Column 1: Fiber Arts -->
+      <div class="column">
+        <h2>Fiber Arts</h2>
+        <p>Patterns, stitch calculators, and handcraft tutorials.</p>
         
-        <div class="card">
-          <h3>Knitting & Crochet</h3>
-          <p>Explore free pattern guides, stitch techniques, and Tunisian crochet projects.</p>
-          <a href="#">View Crafts &rarr;</a>
-        </div>
+        <ul class="link-list">
+          <li>
+            <a href="#crafts">&rarr; Pattern Library & Guides</a>
+            <p>Free guides for knitting, traditional crochet, and Tunisian stitches.</p>
+          </li>
+          <li>
+            <a href="#ai-concepts">&rarr; AI Concepts & Gallery</a>
+            <p>Visual mood boards and digital pattern experiments.</p>
+          </li>
+        </ul>
+      </div>
 
-        <div class="card">
-          <h3>Digital Apps & Tools</h3>
-          <p>Check out interactive web tools like Word Orbit, Maths Orbit, and stitch calculators.</p>
-          <a href="#">Explore Apps &rarr;</a>
-        </div>
+      <!-- Column 2: Digital Apps -->
+      <div class="column">
+        <h2>Interactive Apps</h2>
+        <p>Educational web builds and mental arithmetic tools.</p>
+        
+        <ul class="link-list">
+          <li>
+            <a href="https://kirstn44.github.io/Word-Orbit/" target="_blank">&rarr; Word Orbit Suite</a>
+            <p>Interactive web games for vocabulary and word building.</p>
+          </li>
+          <li>
+            <a href="https://kirstn44.github.io/Maths-Orbit/" target="_blank">&rarr; Maths Orbit Arcade</a>
+            <p>Fast-paced mental math challenges to test arithmetic speed.</p>
+          </li>
+        </ul>
+      </div>
 
-        <div class="card">
-          <h3>AI Concepts</h3>
-          <p>Visual mood boards, pattern experiments, and digital art inspirations.</p>
-          <a href="#">View Gallery &rarr;</a>
-        </div>
+    </section>
 
+    <!-- Blog Section -->
+    <section class="blog-section">
+      <h2>Latest Notes & Articles</h2>
+      
+      <div class="blog-item">
+        <div>
+          <h4>Working Tunisian Crochet in the Round</h4>
+          <p>Techniques for using double-ended cable hooks on seamless beanie projects.</p>
+        </div>
+        <a href="#" style="color: var(--accent); font-weight: 600; text-decoration: none;">Read &rarr;</a>
+      </div>
+
+      <div class="blog-item">
+        <div>
+          <h4>Building Interactive Games for Learning</h4>
+          <p>Behind the scenes on how Word Orbit and Maths Orbit were designed.</p>
+        </div>
+        <a href="#" style="color: var(--accent); font-weight: 600; text-decoration: none;">Read &rarr;</a>
       </div>
     </section>
   </main>
