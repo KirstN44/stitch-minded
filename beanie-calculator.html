@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Beanie Calculator</title>
+  <style>
+    body { font-family: sans-serif; max-width: 500px; margin: 2rem auto; padding: 0 1rem; }
+    .field { margin-bottom: 1rem; display: flex; flex-direction: column; }
+    label { font-weight: bold; margin-bottom: 0.25rem; }
+    input, select, button { padding: 0.5rem; font-size: 1rem; }
+    button { background: #6b21a8; color: white; border: none; cursor: pointer; border-radius: 4px; margin-top: 1rem; }
+    .results { margin-top: 1.5rem; padding: 1rem; background: #f3e8ff; border-radius: 6px; }
+  </style>
+</head>
+<body>
+
+  <h2>Interactive Beanie Calculator</h2>
+
+  <div class="field">
+    <label for="unit">Measurement Unit</label>
+    <select id="unit">
+      <option value="cm">Centimeters (cm)</option>
+      <option value="in">Inches (in)</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="headCirc">Head Circumference</label>
+    <input type="number" id="headCirc" placeholder="e.g. 57 or 22.5" step="0.1">
+  </div>
+
+  <div class="field">
+    <label for="totalHeight">Desired Total Height</label>
+    <input type="number" id="totalHeight" placeholder="e.g. 23 or 9" step="0.1">
+  </div>
+
+  <div class="field">
+    <label for="stsGauge">Stitches per unit (Gauge)</label>
+    <input type="number" id="stsGauge" placeholder="Stitches per 1cm or 1in" step="0.1">
+  </div>
+
+  <div class="field">
+    <label for="rowsGauge">Rows per unit (Gauge)</label>
+    <input type="number" id="rowsGauge" placeholder="Rows per 1cm or 1in" step="0.1">
+  </div>
+
+  <div class="field">
+    <label for="multiple">Stitch Multiple</label>
+    <select id="multiple">
+      <option value="1">1 (Plain Stitch)</option>
+      <option value="2" selected>2 (1x1 Ribbing)</option>
+      <option value="4">4 (2x2 Ribbing)</option>
+    </select>
+  </div>
+
+  <button onclick="runCalculator()">Calculate Beanie</button>
+
+  <div class="results" id="output" style="display:none;">
+    <h3>Calculation Results</h3>
+    <p><strong>Finished Hat Circumference:</strong> <span id="outCirc"></span> <span class="unitLabel"></span></p>
+    <p><strong>Target Crown Diameter:</strong> <span id="outCrown"></span> <span class="unitLabel"></span></p>
+    <p><strong>Cast-On / Working Stitches:</strong> <span id="outStitches"></span> sts</p>
+    <p><strong>Total Work Height Rows:</strong> <span id="outRows"></span> rows</p>
+  </div>
+
+  <script>
+    function runCalculator() {
+      const unit = document.getElementById('unit').value;
+      const headCircumference = parseFloat(document.getElementById('headCirc').value);
+      const totalHeight = parseFloat(document.getElementById('totalHeight').value);
+      const stitchesPerUnit = parseFloat(document.getElementById('stsGauge').value);
+      const rowsPerUnit = parseFloat(document.getElementById('rowsGauge').value);
+      const stitchMultiple = parseInt(document.getElementById('multiple').value);
+
+      if (!headCircumference || !totalHeight || !stitchesPerUnit || !rowsPerUnit) {
+        alert("Please fill in all input fields.");
+        return;
+      }
+
+      const easeFactor = 0.90; // 10% negative ease
+      const finishedCircumference = headCircumference * easeFactor;
+      const targetCrownDiameter = finishedCircumference / Math.PI;
+      const rawStitches = finishedCircumference * stitchesPerUnit;
+      const targetStitches = Math.round(rawStitches / stitchMultiple) * stitchMultiple;
+      const totalRows = Math.round(totalHeight * rowsPerUnit);
+
+      document.getElementById('outCirc').textContent = finishedCircumference.toFixed(1);
+      document.getElementById('outCrown').textContent = targetCrownDiameter.toFixed(1);
+      document.getElementById('outStitches').textContent = targetStitches;
+      document.getElementById('outRows').textContent = totalRows;
+      
+      const labels = document.querySelectorAll('.unitLabel');
+      labels.forEach(el => el.textContent = unit);
+
+      document.getElementById('output').style.display = 'block';
+    }
+  </script>
+
+</body>
+</html>
