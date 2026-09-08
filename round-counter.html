@@ -1,0 +1,248 @@
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Round & Row Counter | Stitch Minded</title>
+  <style>
+    :root {
+      --primary: #1e293b;
+      --accent: #7c3aed;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --border: #e2e8f0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      background-color: var(--bg);
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: var(--primary);
+      color: white;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    nav {
+      margin-top: 0.5rem;
+    }
+
+    nav a {
+      color: #c084fc;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    main {
+      max-width: 500px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .counter-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .project-name {
+      width: 100%;
+      font-size: 1.1rem;
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      box-sizing: border-box;
+    }
+
+    .count-display {
+      font-size: 5rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 1rem 0;
+      user-select: none;
+    }
+
+    .target-box {
+      font-size: 0.95rem;
+      color: #64748b;
+      margin-bottom: 1.5rem;
+    }
+
+    .target-input {
+      width: 60px;
+      text-align: center;
+      padding: 0.2rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    .btn-main {
+      width: 100%;
+      padding: 1.5rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: white;
+      background-color: var(--accent);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: background-color 0.15s ease;
+    }
+
+    .btn-main:active {
+      background-color: #6b21a8;
+      transform: scale(0.98);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .btn-sub {
+      flex: 1;
+      padding: 0.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: #f1f5f9;
+      color: var(--text);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn-sub:hover {
+      background: #e2e8f0;
+    }
+
+    .progress-bar-bg {
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.2s ease;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Digital Round Counter</h1>
+    <nav><a href="index.html">&larr; Back to Stitch Minded</a></nav>
+  </header>
+
+  <main>
+    <div class="counter-card">
+      <input type="text" id="projectName" class="project-name" placeholder="Project Name (e.g. Baby Beanie)" oninput="saveData()">
+      
+      <div class="progress-bar-bg">
+        <div id="progressFill" class="progress-bar-fill"></div>
+      </div>
+
+      <div id="countDisplay" class="count-display">0</div>
+
+      <div class="target-box">
+        Target: <input type="number" id="targetCount" class="target-input" placeholder="--" oninput="updateDisplay()"> rounds
+      </div>
+
+      <button class="btn-main" onclick="changeCount(1)">+1 ROUND</button>
+
+      <div class="btn-group">
+        <button class="btn-sub" onclick="changeCount(-1)">-1 Undo</button>
+        <button class="btn-sub" onclick="resetCount()">Reset</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Stitch Minded. Progress automatically saved in your browser.</p>
+  </footer>
+
+  <script>
+    let count = 0;
+
+    function loadData() {
+      const savedCount = localStorage.getItem('sm_count');
+      const savedTarget = localStorage.getItem('sm_target');
+      const savedName = localStorage.getItem('sm_name');
+
+      if (savedCount !== null) count = parseInt(savedCount, 10);
+      if (savedTarget !== null) document.getElementById('targetCount').value = savedTarget;
+      if (savedName !== null) document.getElementById('projectName').value = savedName;
+
+      updateDisplay();
+    }
+
+    function changeCount(delta) {
+      count = Math.max(0, count + delta);
+      updateDisplay();
+      saveData();
+    }
+
+    function resetCount() {
+      if (confirm("Reset counter back to 0?")) {
+        count = 0;
+        updateDisplay();
+        saveData();
+      }
+    }
+
+    function updateDisplay() {
+      document.getElementById('countDisplay').innerText = count;
+      const target = parseInt(document.getElementById('targetCount').value, 10);
+      const fill = document.getElementById('progressFill');
+
+      if (target > 0) {
+        const pct = Math.min(100, (count / target) * 100);
+        fill.style.width = pct + '%';
+      } else {
+        fill.style.width = '0%';
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem('sm_count', count);
+      localStorage.setItem('sm_target', document.getElementById('targetCount').value);
+      localStorage.setItem('sm_name', document.getElementById('projectName').value);
+    }
+
+    window.onload = loadData;
+  </script>
+
+</body>
+</html>
