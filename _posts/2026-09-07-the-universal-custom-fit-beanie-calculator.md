@@ -22,7 +22,7 @@ Working out stitch math shouldn't feel like a geometry test! This tool takes you
   <p style="color: #4b5563; margin-bottom: 1.5rem; font-size: 0.98rem; line-height: 1.5;">
     Launch the interactive tool to choose your fit, enter your gauge, and generate custom top-down or bottom-up beanie instructions.
   </p>
-  <a href="/tools/universal-beanie-calculator.html" style="display: inline-block; background-color: #7c3aed; color: #ffffff; padding: 0.85rem 1.75rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1rem; transition: background-color 0.2s ease;">
+  <a href="/stitch-minded/beanie-calculator.html" style="display: inline-block; background-color: #7c3aed; color: #ffffff; padding: 0.85rem 1.75rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1rem; transition: background-color 0.2s ease;">
     Open Universal Beanie Calculator &rarr;
   </a>
 </div>
