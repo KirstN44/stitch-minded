@@ -3,98 +3,273 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Beanie Calculator</title>
+  <title>Universal Beanie Calculator</title>
   <style>
-    body { font-family: sans-serif; max-width: 500px; margin: 2rem auto; padding: 0 1rem; }
+    body { font-family: sans-serif; max-width: 520px; margin: 1.5rem auto; padding: 0 1rem; color: #333; }
     .field { margin-bottom: 1rem; display: flex; flex-direction: column; }
-    label { font-weight: bold; margin-bottom: 0.25rem; }
-    input, select, button { padding: 0.5rem; font-size: 1rem; }
-    button { background: #6b21a8; color: white; border: none; cursor: pointer; border-radius: 4px; margin-top: 1rem; }
-    .results { margin-top: 1.5rem; padding: 1rem; background: #f3e8ff; border-radius: 6px; }
+    label { font-weight: bold; margin-bottom: 0.25rem; font-size: 0.9rem; }
+    input, select, button { padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; }
+    button { background: #6b21a8; color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 0.5rem; }
+    button:hover { background: #581c87; }
+    .results { margin-top: 1.5rem; padding: 1rem; background: #f3e8ff; border-radius: 6px; border-left: 4px solid #6b21a8; }
+    .step-list { margin-top: 0.5rem; padding-left: 1.2rem; }
+    .step-list li { margin-bottom: 0.25rem; }
+    
+    /* Mode Toggle & Banner Styling */
+    .mode-container { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
+    .mode-btn { flex: 1; padding: 0.6rem; background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; }
+    .mode-btn.active { background: #6b21a8; color: white; border-color: #6b21a8; }
+    .mode-desc { background: #f3e8ff; padding: 0.75rem; border-radius: 6px; font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.4; }
+    .craft-note { background: #e9d5ff; border-left: 4px solid #6b21a8; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.8rem; margin-bottom: 1rem; color: #4c1d95; }
+    .stitch-note { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 0.6rem 0.75rem; border-radius: 4px; font-size: 0.8rem; margin-bottom: 1rem; line-height: 1.4; color: #92400e; }
   </style>
 </head>
 <body>
 
-  <h2>Interactive Beanie Calculator</h2>
+  <h2>Universal Beanie Calculator</h2>
+
+  <div class="craft-note">
+    <strong>Designed for Knitters:</strong> Optimized for standard 8-point crown shaping (also works for Half Double Crochet in the round).<br>
+    <em>Dedicated Crochet & Tunisian tools coming soon!</em>
+  </div>
+
+  <!-- Mode Toggle Buttons -->
+  <div class="mode-container">
+    <button type="button" id="btnGaugeFree" class="mode-btn active" onclick="setMode('gaugeFree')">✨ Gauge-Free Mode</button>
+    <button type="button" id="btnCustom" class="mode-btn" onclick="setMode('custom')">📏 Custom Swatch Mode</button>
+  </div>
+
+  <div id="modeHelp" class="mode-desc">
+    <strong>Gauge-Free Mode:</strong> Pick a target size and yarn weight to get instant stitch counts without swatching!
+  </div>
+
+  <div id="stitchNote" class="stitch-note">
+    💡 <strong>Note:</strong> Gauge-Free estimates are based on standard stockinette (knit) stitch. If you are using cables, ribbing, or textured stitch patterns, switch to <strong>Custom Swatch Mode</strong> for the best fit!
+  </div>
 
   <div class="field">
-    <label for="unit">Measurement Unit</label>
-    <select id="unit">
+    <label for="construction">Construction Method</label>
+    <select id="construction">
+      <option value="topDown" selected>Top-Down (Crown to Brim - 8-Stitch Method)</option>
+      <option value="bottomUp">Bottom-Up (Brim to Crown Decreases)</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="unit">Unit of Measurement</label>
+    <select id="unit" onchange="applyPreset()">
       <option value="cm">Centimeters (cm)</option>
       <option value="in">Inches (in)</option>
     </select>
   </div>
 
   <div class="field">
-    <label for="headCirc">Head Circumference</label>
-    <input type="number" id="headCirc" placeholder="e.g. 57 or 22.5" step="0.1">
-  </div>
-
-  <div class="field">
-    <label for="totalHeight">Desired Total Height</label>
-    <input type="number" id="totalHeight" placeholder="e.g. 23 or 9" step="0.1">
-  </div>
-
-  <div class="field">
-    <label for="stsGauge">Stitches per unit (Gauge)</label>
-    <input type="number" id="stsGauge" placeholder="Stitches per 1cm or 1in" step="0.1">
-  </div>
-
-  <div class="field">
-    <label for="rowsGauge">Rows per unit (Gauge)</label>
-    <input type="number" id="rowsGauge" placeholder="Rows per 1cm or 1in" step="0.1">
-  </div>
-
-  <div class="field">
-    <label for="multiple">Stitch Multiple</label>
-    <select id="multiple">
-      <option value="1">1 (Plain Stitch)</option>
-      <option value="2" selected>2 (1x1 Ribbing)</option>
-      <option value="4">4 (2x2 Ribbing)</option>
+    <label for="sizePreset">Target Size Preset</label>
+    <select id="sizePreset" onchange="applyPreset()">
+      <option value="microPreemie">Micro Preemie (Head: 22cm / 8.5in)</option>
+      <option value="preemie">Preemie (Head: 29cm / 11.5in)</option>
+      <option value="newborn">Newborn 0–3 Months (Head: 34cm / 13.5in)</option>
+      <option value="baby3_6">Baby 3–6 Months (Head: 37cm / 14.5in)</option>
+      <option value="baby6_12" selected>Baby 6–12 Months (Head: 41cm / 16.5in)</option>
+      <option value="toddler">Toddler 1–3 Yrs (Head: 46cm / 18in)</option>
+      <option value="child">Child 4–10 Yrs (Head: 50cm / 20in)</option>
+      <option value="teen">Teen / Small Adult (Head: 53cm / 21in)</option>
+      <option value="adultM">Medium Adult (Head: 57cm / 22.5in)</option>
+      <option value="adultL">Large Adult (Head: 60cm / 23.5in)</option>
     </select>
   </div>
 
-  <button onclick="runCalculator()">Calculate Beanie</button>
+  <div class="field">
+    <label for="hatStyle">Beanie Fit & Style</label>
+    <select id="hatStyle" onchange="applyPreset()">
+      <option value="fitted" selected>Standard Fitted Beanie</option>
+      <option value="slightSlouch">Slight Slouch (+2.5cm / +1in)</option>
+      <option value="deepSlouch">Deep Slouch (+7.5cm / +3in)</option>
+    </select>
+  </div>
+
+  <div class="field" id="yarnWeightField">
+    <label for="yarnWeight">Yarn Weight (Estimated Gauge)</label>
+    <select id="yarnWeight" onchange="applyPreset()">
+      <option value="fingering">1: Fingering / Sock / 4-Ply (2.75–3.25mm)</option>
+      <option value="sport">2: Sport / Baby / 5-Ply (3.5–3.75mm)</option>
+      <option value="dk" selected>3: DK / Light Worsted / 8-Ply (4.0mm / US 6)</option>
+      <option value="worsted">4: Worsted / Aran / 10-Ply (5.0mm / US 8)</option>
+      <option value="bulky">5: Chunky / Bulky / 12-Ply (6.0–7.0mm / US 10)</option>
+      <option value="superBulky">6: Super Bulky / Super Chunky (8.0–10.0mm / US 11-15)</option>
+    </select>
+  </div>
+
+  <div class="field" id="headCircField">
+    <label for="headCirc">Head Circumference</label>
+    <input type="number" id="headCirc" step="0.1">
+  </div>
+
+  <div class="field" id="totalHeightField">
+    <label for="totalHeight">Total Hat Height</label>
+    <input type="number" id="totalHeight" step="0.1">
+  </div>
+
+  <!-- Custom Gauge Inputs (Hidden in Gauge-Free Mode) -->
+  <div class="field" id="stsGaugeField" style="display:none;">
+    <label for="stsGauge">Stitches per unit (Gauge Swatch)</label>
+    <input type="number" id="stsGauge" step="0.1">
+  </div>
+
+  <div class="field" id="rowsGaugeField" style="display:none;">
+    <label for="rowsGauge">Rows/Rounds per unit (Gauge Swatch)</label>
+    <input type="number" id="rowsGauge" step="0.1">
+  </div>
+
+  <button type="button" onclick="calculatePattern()">Calculate Pattern</button>
 
   <div class="results" id="output" style="display:none;">
-    <h3>Calculation Results</h3>
-    <p><strong>Finished Hat Circumference:</strong> <span id="outCirc"></span> <span class="unitLabel"></span></p>
+    <h3 id="outTitle">Your Pattern Instructions</h3>
+    <p><strong>Finished Hat Circumference (-10% Ease):</strong> <span id="outCirc"></span> <span class="unitLabel"></span></p>
     <p><strong>Target Crown Diameter:</strong> <span id="outCrown"></span> <span class="unitLabel"></span></p>
-    <p><strong>Cast-On / Working Stitches:</strong> <span id="outStitches"></span> sts</p>
-    <p><strong>Total Work Height Rows:</strong> <span id="outRows"></span> rows</p>
+    <p><strong>Target Main Stitch Count:</strong> <span id="outStitches"></span> sts</p>
+    
+    <div id="instructionsContainer"></div>
   </div>
 
   <script>
-    function runCalculator() {
-      const unit = document.getElementById('unit').value;
-      const headCircumference = parseFloat(document.getElementById('headCirc').value);
-      const totalHeight = parseFloat(document.getElementById('totalHeight').value);
-      const stitchesPerUnit = parseFloat(document.getElementById('stsGauge').value);
-      const rowsPerUnit = parseFloat(document.getElementById('rowsGauge').value);
-      const stitchMultiple = parseInt(document.getElementById('multiple').value);
+    let currentMode = 'gaugeFree';
 
-      if (!headCircumference || !totalHeight || !stitchesPerUnit || !rowsPerUnit) {
-        alert("Please fill in all input fields.");
+    const presets = {
+      microPreemie: { cm: { circ: 22, height: 8.5 },  in: { circ: 8.5,  height: 3.5 } },
+      preemie:      { cm: { circ: 29, height: 11.5 }, in: { circ: 11.5, height: 4.5 } },
+      newborn:      { cm: { circ: 34, height: 13.0 }, in: { circ: 13.5, height: 5.0 } },
+      baby3_6:      { cm: { circ: 37, height: 14.0 }, in: { circ: 14.5, height: 5.5 } },
+      baby6_12:     { cm: { circ: 41, height: 16.5 }, in: { circ: 16.5, height: 6.5 } },
+      toddler:      { cm: { circ: 46, height: 18.0 }, in: { circ: 18.0, height: 7.0 } },
+      child:        { cm: { circ: 50, height: 20.0 }, in: { circ: 20.0, height: 8.0 } },
+      teen:         { cm: { circ: 53, height: 21.5 }, in: { circ: 21.0, height: 8.5 } },
+      adultM:       { cm: { circ: 57, height: 23.0 }, in: { circ: 22.5, height: 9.0 } },
+      adultL:       { cm: { circ: 60, height: 24.0 }, in: { circ: 23.5, height: 9.5 } }
+    };
+
+    const gauges = {
+      fingering:  { cm: { sts: 3.0, rows: 4.0 }, in: { sts: 7.5, rows: 10.0 } },
+      sport:      { cm: { sts: 2.6, rows: 3.4 }, in: { sts: 6.5, rows: 8.5 } },
+      dk:         { cm: { sts: 2.2, rows: 3.0 }, in: { sts: 5.5, rows: 7.5 } },
+      worsted:    { cm: { sts: 1.8, rows: 2.4 }, in: { sts: 4.5, rows: 6.0 } },
+      bulky:      { cm: { sts: 1.4, rows: 1.8 }, in: { sts: 3.5, rows: 4.5 } },
+      superBulky: { cm: { sts: 1.0, rows: 1.3 }, in: { sts: 2.5, rows: 3.2 } }
+    };
+
+    function setMode(mode) {
+      currentMode = mode;
+      const btnFree = document.getElementById('btnGaugeFree');
+      const btnCustom = document.getElementById('btnCustom');
+      const helpText = document.getElementById('modeHelp');
+      const stitchNote = document.getElementById('stitchNote');
+      const stsField = document.getElementById('stsGaugeField');
+      const rowsField = document.getElementById('rowsGaugeField');
+      const yarnField = document.getElementById('yarnWeightField');
+
+      if (mode === 'gaugeFree') {
+        btnFree.classList.add('active');
+        btnCustom.classList.remove('active');
+        helpText.innerHTML = "<strong>Gauge-Free Mode:</strong> Pick a target size and yarn weight to get instant stitch counts without swatching!";
+        stitchNote.style.display = 'block';
+        stsField.style.display = 'none';
+        rowsField.style.display = 'none';
+        yarnField.style.display = 'flex';
+        applyPreset();
+      } else {
+        btnCustom.classList.add('active');
+        btnFree.classList.remove('active');
+        helpText.innerHTML = "<strong>Custom Swatch Mode:</strong> Enter your head/hat dimensions and exact swatch gauge measurements for a tailor-made fit.";
+        stitchNote.style.display = 'none';
+        stsField.style.display = 'flex';
+        rowsField.style.display = 'flex';
+        yarnField.style.display = 'none';
+      }
+    }
+
+    function applyPreset() {
+      const unit = document.getElementById('unit').value;
+      const sizeKey = document.getElementById('sizePreset').value;
+      const yarnKey = document.getElementById('yarnWeight').value;
+      const style = document.getElementById('hatStyle').value;
+
+      let baseHeight = presets[sizeKey][unit].height;
+      if (style === 'slightSlouch') {
+        baseHeight += (unit === 'cm' ? 2.5 : 1.0);
+      } else if (style === 'deepSlouch') {
+        baseHeight += (unit === 'cm' ? 7.5 : 3.0);
+      }
+
+      document.getElementById('headCirc').value = presets[sizeKey][unit].circ;
+      document.getElementById('totalHeight').value = baseHeight.toFixed(1);
+      document.getElementById('stsGauge').value = gauges[yarnKey][unit].sts;
+      document.getElementById('rowsGauge').value = gauges[yarnKey][unit].rows;
+    }
+
+    function calculatePattern() {
+      const construction = document.getElementById('construction').value;
+      const unit = document.getElementById('unit').value;
+      const headCirc = parseFloat(document.getElementById('headCirc').value);
+      const totalHeight = parseFloat(document.getElementById('totalHeight').value);
+      const stsGauge = parseFloat(document.getElementById('stsGauge').value);
+      const rowsGauge = parseFloat(document.getElementById('rowsGauge').value);
+
+      if (!headCirc || !totalHeight || !stsGauge || !rowsGauge) {
+        alert("Please ensure all fields are filled.");
         return;
       }
 
-      const easeFactor = 0.90; // 10% negative ease
-      const finishedCircumference = headCircumference * easeFactor;
-      const targetCrownDiameter = finishedCircumference / Math.PI;
-      const rawStitches = finishedCircumference * stitchesPerUnit;
-      const targetStitches = Math.round(rawStitches / stitchMultiple) * stitchMultiple;
-      const totalRows = Math.round(totalHeight * rowsPerUnit);
+      const easeCirc = headCirc * 0.90;
+      const crownDiameter = easeCirc / Math.PI;
+      const targetStitches = Math.max(8, Math.round((easeCirc * stsGauge) / 8) * 8);
 
-      document.getElementById('outCirc').textContent = finishedCircumference.toFixed(1);
-      document.getElementById('outCrown').textContent = targetCrownDiameter.toFixed(1);
+      document.getElementById('outCirc').textContent = easeCirc.toFixed(1);
+      document.getElementById('outCrown').textContent = crownDiameter.toFixed(1);
       document.getElementById('outStitches').textContent = targetStitches;
-      document.getElementById('outRows').textContent = totalRows;
-      
+
+      const container = document.getElementById('instructionsContainer');
+
+      if (construction === 'topDown') {
+        const crownRounds = targetStitches / 8;
+        const crownHeight = crownDiameter / 2;
+        const bodyHeight = Math.max(0, totalHeight - crownHeight);
+        const bodyRounds = Math.round(bodyHeight * rowsGauge);
+
+        container.innerHTML = `
+          <h4>Top-Down Steps (8-Stitch Method):</h4>
+          <ol class="step-list">
+            <li><strong>Start Ring:</strong> Cast on 8 stitches into a magic ring or center loop and join in the round.</li>
+            <li><strong>Increase Phase:</strong> Work alternating rounds (<strong>Round 1:</strong> Increase by 8 sts; <strong>Round 2:</strong> Knit all sts with no increases). Repeat until you reach <strong>${targetStitches} sts</strong> (${crownRounds} increase rounds total).</li>
+            <li><strong>Gauge Checkpoint:</strong> Your flat crown circle should measure ~<strong>${crownDiameter.toFixed(1)} ${unit}</strong> across.</li>
+            <li><strong>Body Section:</strong> Work straight in pattern (knit all rounds) without increasing for ~<strong>${bodyRounds} rounds</strong> until the beanie measures <strong>${totalHeight.toFixed(1)} ${unit}</strong> from top to bottom.</li>
+          </ol>
+        `;
+      } else {
+        const totalRows = Math.round(totalHeight * rowsGauge);
+        const crownDecreaseHeight = crownDiameter / 2;
+        const bodyStraightHeight = Math.max(0, totalHeight - crownDecreaseHeight);
+        const straightRows = Math.round(bodyStraightHeight * rowsGauge);
+
+        container.innerHTML = `
+          <h4>Bottom-Up Steps (Brim First):</h4>
+          <ol class="step-list">
+            <li><strong>Cast On:</strong> Cast on <strong>${targetStitches} sts</strong> (multiple of 8 for ribbing/decreases) and join in the round.</li>
+            <li><strong>Brim & Body:</strong> Work ribbing or body stitch pattern straight for <strong>${straightRows} rounds</strong> (~${bodyStraightHeight.toFixed(1)} ${unit}).</li>
+            <li><strong>Crown Decreases:</strong> Begin decrease rounds, alternating between a decrease round (decreasing 8 sts per round) and a plain knit round until 8 sts remain.</li>
+            <li><strong>Finish:</strong> Cut yarn, thread through remaining 8 sts, cinch tight, and weave in ends. Total length should measure <strong>${totalHeight.toFixed(1)} ${unit}</strong>.</li>
+          </ol>
+        `;
+      }
+
       const labels = document.querySelectorAll('.unitLabel');
       labels.forEach(el => el.textContent = unit);
 
       document.getElementById('output').style.display = 'block';
     }
+
+    window.onload = function() {
+      setMode('gaugeFree');
+    };
   </script>
 
 </body>
