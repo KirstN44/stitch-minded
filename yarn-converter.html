@@ -1,0 +1,168 @@
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yarn Stash & Skein Converter | Stitch Minded</title>
+  <style>
+    :root {
+      --primary: #1e293b;
+      --accent: #7c3aed;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --border: #e2e8f0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      background-color: var(--bg);
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: var(--primary);
+      color: white;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    nav {
+      margin-top: 0.5rem;
+    }
+
+    nav a {
+      color: #c084fc;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    main {
+      max-width: 550px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .calc-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      font-size: 0.95rem;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    .result-box {
+      background: #f3e8ff;
+      border-left: 4px solid var(--accent);
+      padding: 1.25rem;
+      border-radius: 6px;
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+
+    .result-box h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #6b21a8;
+    }
+
+    .result-value {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 0.25rem 0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Yarn Stash & Skein Converter</h1>
+    <nav><a href="index.html">&larr; Back to Stitch Minded</a></nav>
+  </header>
+
+  <main>
+    <div class="calc-card">
+      <p style="margin-top:0; color:#64748b; font-size:0.95rem;">Weigh a leftover ball or partial skein to calculate exact remaining yardage.</p>
+
+      <div class="form-group">
+        <label for="fullWeight">Full Skein Weight (grams)</label>
+        <input type="number" id="fullWeight" placeholder="e.g. 100" oninput="calculateYarn()">
+      </div>
+
+      <div class="form-group">
+        <label for="fullLength">Full Skein Length (meters / yards)</label>
+        <input type="number" id="fullLength" placeholder="e.g. 200" oninput="calculateYarn()">
+      </div>
+
+      <div class="form-group">
+        <label for="partialWeight">Weight of Remaining Yarn Ball (grams)</label>
+        <input type="number" id="partialWeight" placeholder="e.g. 42" oninput="calculateYarn()">
+      </div>
+
+      <div class="result-box">
+        <h3>Estimated Remaining Length</h3>
+        <div id="resultValue" class="result-value">0</div>
+        <p id="resultUnit" style="margin:0; font-size:0.9rem; color:#6b21a8;">meters / yards remaining</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Stitch Minded. Built for makers.</p>
+  </footer>
+
+  <script>
+    function calculateYarn() {
+      const fullW = parseFloat(document.getElementById('fullWeight').value) || 0;
+      const fullL = parseFloat(document.getElementById('fullLength').value) || 0;
+      const partW = parseFloat(document.getElementById('partialWeight').value) || 0;
+
+      if (fullW > 0 && fullL > 0 && partW > 0) {
+        const remaining = (partW / fullW) * fullL;
+        document.getElementById('resultValue').innerText = Math.round(remaining);
+      } else {
+        document.getElementById('resultValue').innerText = '0';
+      }
+    }
+  </script>
+
+</body>
+</html>
