@@ -1,281 +1,746 @@
+<a href="index.html">&larr; Back to Home</a>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Universal Beanie Calculator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Universal Beanie Calculator — Standalone Knitting Engine</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    body { font-family: sans-serif; max-width: 520px; margin: 1.5rem auto; padding: 0 1rem; color: #333; }
-    .field { margin-bottom: 1rem; display: flex; flex-direction: column; }
-    label { font-weight: bold; margin-bottom: 0.25rem; font-size: 0.9rem; }
-    input, select, button { padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; }
-    button { background: #6b21a8; color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 0.5rem; }
-    button:hover { background: #581c87; }
-    .results { margin-top: 1.5rem; padding: 1rem; background: #f3e8ff; border-radius: 6px; border-left: 4px solid #6b21a8; }
-    .step-list { margin-top: 0.5rem; padding-left: 1.2rem; }
-    .step-list li { margin-bottom: 0.25rem; }
-    
-    /* Mode Toggle & Banner Styling */
-    .mode-container { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
-    .mode-btn { flex: 1; padding: 0.6rem; background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; }
-    .mode-btn.active { background: #6b21a8; color: white; border-color: #6b21a8; }
-    .mode-desc { background: #f3e8ff; padding: 0.75rem; border-radius: 6px; font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.4; }
-    .craft-note { background: #e9d5ff; border-left: 4px solid #6b21a8; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.8rem; margin-bottom: 1rem; color: #4c1d95; }
-    .stitch-note { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 0.6rem 0.75rem; border-radius: 4px; font-size: 0.8rem; margin-bottom: 1rem; line-height: 1.4; color: #92400e; }
+    @media print {
+      body { background: white !important; color: black !important; }
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      .pattern-card { border: none !important; box-shadow: none !important; }
+    }
   </style>
 </head>
-<body>
-<!-- Back to Home Link -->
-<nav style="margin-bottom: 1.5rem;">
-  <a href="/stitch-minded/index.html" style="text-decoration: none; font-size: 1rem; font-weight: 600; color: #7c3aed;">
-    &larr; Back to Home
-  </a>
-</nav>
-  <h2>Universal Beanie Calculator</h2>
+<body class="bg-stone-100 text-stone-900 font-sans min-h-screen antialiased selection:bg-amber-200">
+  <!-- Top Navigation -->
+  <header class="bg-stone-900 text-stone-100 border-b border-stone-800 sticky top-0 z-40 shadow-sm no-print">
+    <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-amber-700 flex items-center justify-center text-amber-100 font-bold">
+          <i data-lucide="scissors" class="w-4 h-4"></i>
+        </div>
+        <div>
+          <h1 class="text-sm font-bold tracking-tight text-amber-50">Universal Beanie Calculator</h1>
+          <span class="text-3xs text-amber-400 font-medium">Standalone Single-File Edition &bull; No Build Required</span>
+        </div>
+      </div>
 
-  <div class="craft-note">
-    <strong>Designed for Knitters:</strong> Optimized for standard 8-point crown shaping (also works for Half Double Crochet in the round).<br>
-    <em>Dedicated Crochet & Tunisian tools coming soon!</em>
+      <div class="flex items-center gap-2">
+        <button id="btn-open-guides" type="button" class="px-2.5 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold flex items-center gap-1.5 transition-colors">
+          <i data-lucide="help-circle" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span class="hidden sm:inline">Visual Guides</span>
+        </button>
+
+        <button id="btn-open-recipes" type="button" class="px-2.5 py-1.5 rounded-lg bg-amber-800 hover:bg-amber-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs">
+          <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+          <span>My Recipes (<span id="recipe-count-badge">0</span>)</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-6xl mx-auto px-4 py-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- LEFT COLUMN: CONFIGURATION -->
+      <section class="lg:col-span-5 space-y-4 no-print">
+        <div class="bg-white rounded-2xl border border-stone-200 p-5 shadow-sm">
+          
+          <!-- Mode Switcher -->
+          <div class="mb-4">
+            <label class="block text-2xs font-bold uppercase tracking-wider text-stone-500 mb-1.5">1. Calculation Mode</label>
+            <div class="grid grid-cols-2 p-1 bg-stone-100 rounded-xl gap-1">
+              <button id="mode-btn-gauge-free" type="button" class="py-2 text-xs font-bold rounded-lg transition-all bg-white text-amber-900 shadow-xs">
+                Gauge-Free Mode
+              </button>
+              <button id="mode-btn-custom-swatch" type="button" class="py-2 text-xs font-bold rounded-lg transition-all text-stone-600 hover:text-stone-900">
+                Custom Swatch
+              </button>
+            </div>
+          </div>
+
+          <!-- Units & Construction -->
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div>
+              <label class="block text-2xs font-bold uppercase tracking-wider text-stone-500 mb-1.5">Units</label>
+              <div class="grid grid-cols-2 p-0.5 bg-stone-100 rounded-lg gap-0.5">
+                <button id="unit-btn-metric" type="button" class="py-1.5 text-xs font-bold rounded-md bg-white text-stone-900 shadow-2xs">Metric (cm)</button>
+                <button id="unit-btn-imperial" type="button" class="py-1.5 text-xs font-bold rounded-md text-stone-600">Imperial (in)</button>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-2xs font-bold uppercase tracking-wider text-stone-500 mb-1.5">Construction</label>
+              <select id="select-construction" class="w-full text-xs p-1.5 rounded-lg border border-stone-200 bg-stone-50 font-medium focus:ring-2 focus:ring-amber-500">
+                <option value="bottom-up">Bottom-Up (Standard)</option>
+                <option value="top-down">Top-Down (8-Stitch Apex)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Yarn Weight Selector (Gauge-Free) -->
+          <div id="section-gauge-free-yarn" class="mb-4">
+            <label class="block text-2xs font-bold uppercase tracking-wider text-stone-500 mb-1.5">Yarn Weight Category</label>
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5" id="yarn-weight-chips">
+              <!-- Dynamically rendered -->
+            </div>
+          </div>
+
+          <!-- Custom Swatch Inputs (Custom Swatch mode only) -->
+          <div id="section-custom-swatch" class="mb-4 p-3 bg-amber-50/60 rounded-xl border border-amber-200 hidden">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-amber-950 flex items-center gap-1">
+                <i data-lucide="ruler" class="w-3.5 h-3.5 text-amber-700"></i> Swatch Gauge
+              </span>
+              <span id="gauge-unit-label" class="text-3xs text-amber-800 font-semibold">per 10 cm</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-3xs text-stone-600 mb-0.5">Stitch Gauge (Stockinette)</label>
+                <input id="input-stitch-gauge" type="number" step="0.5" value="18" class="w-full text-xs p-2 rounded-lg border border-stone-300 bg-white font-bold" />
+              </div>
+              <div>
+                <label class="block text-3xs text-stone-600 mb-0.5">Row Gauge (Stockinette)</label>
+                <input id="input-row-gauge" type="number" step="0.5" value="24" class="w-full text-xs p-2 rounded-lg border border-stone-300 bg-white font-bold" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Size Preset & Head Circumference -->
+          <div class="mb-4">
+            <label class="block text-2xs font-bold uppercase tracking-wider text-stone-500 mb-1.5">Target Head Size</label>
+            <select id="select-size-preset" class="w-full text-xs p-2 rounded-lg border border-stone-200 bg-stone-50 font-semibold focus:ring-2 focus:ring-amber-500 mb-2">
+              <!-- Dynamically populated -->
+            </select>
+            <div class="flex items-center justify-between text-2xs text-stone-600">
+              <span>Head Circumference:</span>
+              <span id="head-circ-display" class="font-bold text-stone-900">56.0 cm</span>
+            </div>
+          </div>
+
+          <!-- Fit Type -->
+          <div class="mb-4">
+            <label class="block text-2xs font-bold uppercase tracking-wider text-stone-500 mb-1.5">Beanie Fit Profile</label>
+            <div class="grid grid-cols-3 gap-1.5" id="fit-type-chips">
+              <button type="button" data-fit="fitted" class="p-2 rounded-xl border text-center border-amber-600 bg-amber-50/80 font-bold text-amber-900 text-xs">
+                Fitted (-12%)
+              </button>
+              <button type="button" data-fit="slouchy" class="p-2 rounded-xl border text-center border-stone-200 text-stone-600 hover:bg-stone-50 text-xs">
+                Slouchy (+5cm)
+              </button>
+              <button type="button" data-fit="folded-brim" class="p-2 rounded-xl border text-center border-stone-200 text-stone-600 hover:bg-stone-50 text-xs">
+                Folded Brim
+              </button>
+            </div>
+          </div>
+
+          <!-- Ribbing Style -->
+          <div>
+            <label class="block text-2xs font-bold uppercase tracking-wider text-stone-500 mb-1.5">Brim Ribbing Style</label>
+            <div class="grid grid-cols-3 gap-1.5" id="ribbing-style-chips">
+              <button type="button" data-rib="1x1" class="py-1.5 px-2 rounded-lg border border-amber-600 bg-amber-50 text-amber-900 text-xs font-bold">1x1 Rib</button>
+              <button type="button" data-rib="2x2" class="py-1.5 px-2 rounded-lg border border-stone-200 text-stone-600 text-xs">2x2 Rib</button>
+              <button type="button" data-rib="rolled" class="py-1.5 px-2 rounded-lg border border-stone-200 text-stone-600 text-xs">Rolled Edge</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Summary & Save Box -->
+        <div class="bg-amber-900 text-amber-50 rounded-2xl p-4 shadow-sm flex items-center justify-between">
+          <div>
+            <div class="text-xs font-bold">Love this combination?</div>
+            <div class="text-3xs text-amber-200">Save to your recipe box with yarn notes</div>
+          </div>
+          <button id="btn-save-recipe-trigger" type="button" class="px-3 py-2 bg-amber-700 hover:bg-amber-600 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs">
+            <i data-lucide="bookmark-plus" class="w-3.5 h-3.5"></i>
+            <span>Save Recipe</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: PATTERN OUTPUT & SCHEMATIC -->
+      <section class="lg:col-span-7 space-y-4">
+        
+        <!-- Live Schematic Card -->
+        <div class="bg-white rounded-2xl border border-stone-200 p-4 sm:p-5 shadow-sm pattern-card">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <span class="text-3xs uppercase font-bold tracking-wider text-amber-800">Dynamic Pattern Output</span>
+              <h2 id="pattern-title" class="text-base font-extrabold text-stone-900">Adult Medium Classic Worsted Beanie</h2>
+            </div>
+            <button id="btn-print-recipe" type="button" class="no-print px-3 py-1.5 rounded-lg border border-stone-300 hover:bg-stone-100 text-stone-700 text-xs font-semibold flex items-center gap-1.5 transition-colors">
+              <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+              <span>Print / Save PDF</span>
+            </button>
+          </div>
+
+          <!-- Key Metrics Badges -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+            <div class="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200 text-center">
+              <span class="text-3xs text-amber-800 font-medium block">Cast-On Count</span>
+              <span id="metric-cast-on" class="text-lg font-black text-amber-950">88</span>
+              <span class="text-3xs text-amber-700 block">stitches</span>
+            </div>
+
+            <div class="p-2.5 rounded-xl bg-stone-50 border border-stone-200 text-center">
+              <span class="text-3xs text-stone-500 font-medium block">Finished Hat Circ</span>
+              <span id="metric-finished-circ" class="text-lg font-black text-stone-900">49.3</span>
+              <span id="unit-circ-label" class="text-3xs text-stone-600 block">cm</span>
+            </div>
+
+            <div class="p-2.5 rounded-xl bg-stone-50 border border-stone-200 text-center">
+              <span class="text-3xs text-stone-500 font-medium block">Total Height</span>
+              <span id="metric-total-height" class="text-lg font-black text-stone-900">22.5</span>
+              <span id="unit-height-label" class="text-3xs text-stone-600 block">cm</span>
+            </div>
+
+            <div class="p-2.5 rounded-xl bg-stone-50 border border-stone-200 text-center">
+              <span class="text-3xs text-stone-500 font-medium block">Est. Yarn Needed</span>
+              <span id="metric-est-yarn" class="text-lg font-black text-stone-900">145</span>
+              <span id="unit-yarn-label" class="text-3xs text-stone-600 block">meters</span>
+            </div>
+          </div>
+
+          <!-- Needle & Materials Bar -->
+          <div class="p-3 bg-stone-50 rounded-xl border border-stone-200 text-xs space-y-1 mb-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-stone-600"><strong>Body Needle:</strong> <span id="mat-needle-body">5.0 mm (US 8)</span></span>
+              <span class="text-stone-600"><strong>Brim Needle:</strong> <span id="mat-needle-brim">4.5 mm (US 7)</span></span>
+              <span class="text-stone-600"><strong>Crown Wedges:</strong> 8 radial sections</span>
+            </div>
+          </div>
+
+          <!-- Step by Step Knitting Instructions -->
+          <div class="space-y-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-stone-800 flex items-center gap-1.5">
+              <i data-lucide="list-ordered" class="w-4 h-4 text-amber-700"></i> Step-by-Step Knitting Recipe
+            </h3>
+            <div id="instructions-container" class="space-y-2.5 text-xs">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- MODAL: VISUAL GUIDES -->
+  <div id="modal-guides" class="fixed inset-0 z-50 bg-stone-900/65 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-5 shadow-2xl border border-stone-200 text-stone-900 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-stone-200 mb-4">
+        <h3 class="text-base font-bold flex items-center gap-2">
+          <i data-lucide="sparkles" class="w-5 h-5 text-amber-700"></i>
+          Knitter's Visual Swatch &amp; Label Guide
+        </h3>
+        <button id="btn-close-guides" type="button" class="p-1 rounded-lg hover:bg-stone-100 text-stone-500">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200">
+          <h4 class="font-bold text-amber-950 mb-1">How to Count Gauge Accurately</h4>
+          <p class="text-stone-700 leading-relaxed mb-2">
+            Knit a swatch at least 12&times;12 cm. Lay it completely flat on a table without stretching. Use a rigid ruler across the central 10 cm (4 inches).
+          </p>
+          <div class="p-2 bg-stone-900 text-amber-300 font-mono rounded text-2xs">
+            Stitch Count = Count each "V" shape horizontally.<br/>
+            Row Count = Count each horizontal ridge / "V" column vertically.
+          </div>
+        </div>
+
+        <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
+          <h4 class="font-bold text-stone-900 mb-1">Reading Yarn Skein Labels</h4>
+          <ul class="space-y-1.5 text-stone-600 list-disc list-inside">
+            <li><strong>Skein Symbol (#1 - #6):</strong> Craft Yarn Council weight standard.</li>
+            <li><strong>Gauge Box (10&times;10 cm):</strong> Number at the bottom is stitches per 10cm; side is rows.</li>
+            <li><strong>Needle Graphic:</strong> Recommended needle size. Knit brim with 0.5mm smaller needles.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Mode Toggle Buttons -->
-  <div class="mode-container">
-    <button type="button" id="btnGaugeFree" class="mode-btn active" onclick="setMode('gaugeFree')">✨ Gauge-Free Mode</button>
-    <button type="button" id="btnCustom" class="mode-btn" onclick="setMode('custom')">📏 Custom Swatch Mode</button>
+  <!-- MODAL: SAVE RECIPE -->
+  <div id="modal-save-recipe" class="fixed inset-0 z-50 bg-stone-900/65 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-stone-200 text-stone-900">
+      <div class="flex items-center justify-between pb-2 border-b border-stone-200 mb-3">
+        <h3 class="text-sm font-bold flex items-center gap-1.5">
+          <i data-lucide="bookmark-plus" class="w-4 h-4 text-amber-700"></i> Save Recipe to My Box
+        </h3>
+        <button id="btn-close-save-modal" type="button" class="p-1 rounded-lg hover:bg-stone-100 text-stone-500">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <form id="form-save-recipe" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-2xs font-semibold text-stone-700 mb-1">Recipe / Project Title</label>
+          <input id="input-recipe-title" type="text" required class="w-full p-2 border border-stone-300 rounded-lg" placeholder="e.g. Winter Slouch Beanie" />
+        </div>
+        <div>
+          <label class="block text-2xs font-semibold text-stone-700 mb-1">Yarn Name &amp; Color (optional)</label>
+          <input id="input-recipe-yarn" type="text" class="w-full p-2 border border-stone-300 rounded-lg" placeholder="e.g. Malabrigo Rios - Teal" />
+        </div>
+        <div>
+          <label class="block text-2xs font-semibold text-stone-700 mb-1">Notes (optional)</label>
+          <textarea id="input-recipe-notes" rows="2" class="w-full p-2 border border-stone-300 rounded-lg" placeholder="Any needle or swatch notes..."></textarea>
+        </div>
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" id="btn-cancel-save" class="px-3 py-1.5 border border-stone-200 rounded-lg text-stone-600">Cancel</button>
+          <button type="submit" class="px-4 py-1.5 bg-amber-800 text-white font-bold rounded-lg hover:bg-amber-700">Save Recipe</button>
+        </div>
+      </form>
+    </div>
   </div>
 
-  <div id="modeHelp" class="mode-desc">
-    <strong>Gauge-Free Mode:</strong> Pick a target size and yarn weight to get instant stitch counts without swatching!
+  <!-- DRAWER: MY RECIPES -->
+  <div id="drawer-recipes" class="fixed inset-0 z-50 bg-stone-900/65 backdrop-blur-xs flex justify-end hidden">
+    <div class="w-full max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-stone-200 text-stone-900">
+      <div class="p-4 border-b border-stone-200 flex items-center justify-between bg-stone-50">
+        <h3 class="text-sm font-bold flex items-center gap-2">
+          <i data-lucide="book-open" class="w-4 h-4 text-amber-700"></i> My Saved Recipes
+        </h3>
+        <button id="btn-close-recipes-drawer" type="button" class="p-1 rounded-lg hover:bg-stone-200 text-stone-500">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="saved-recipes-list" class="flex-1 overflow-y-auto p-4 space-y-3 text-xs">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
   </div>
 
-  <div id="stitchNote" class="stitch-note">
-    💡 <strong>Note:</strong> Gauge-Free estimates are based on standard stockinette (knit) stitch. If you are using cables, ribbing, or textured stitch patterns, switch to <strong>Custom Swatch Mode</strong> for the best fit!
-  </div>
-
-  <div class="field">
-    <label for="construction">Construction Method</label>
-    <select id="construction">
-      <option value="topDown" selected>Top-Down (Crown to Brim - 8-Stitch Method)</option>
-      <option value="bottomUp">Bottom-Up (Brim to Crown Decreases)</option>
-    </select>
-  </div>
-
-  <div class="field">
-    <label for="unit">Unit of Measurement</label>
-    <select id="unit" onchange="applyPreset()">
-      <option value="cm">Centimeters (cm)</option>
-      <option value="in">Inches (in)</option>
-    </select>
-  </div>
-
-  <div class="field">
-    <label for="sizePreset">Target Size Preset</label>
-    <select id="sizePreset" onchange="applyPreset()">
-      <option value="microPreemie">Micro Preemie (Head: 22cm / 8.5in)</option>
-      <option value="preemie">Preemie (Head: 29cm / 11.5in)</option>
-      <option value="newborn">Newborn 0–3 Months (Head: 34cm / 13.5in)</option>
-      <option value="baby3_6">Baby 3–6 Months (Head: 37cm / 14.5in)</option>
-      <option value="baby6_12" selected>Baby 6–12 Months (Head: 41cm / 16.5in)</option>
-      <option value="toddler">Toddler 1–3 Yrs (Head: 46cm / 18in)</option>
-      <option value="child">Child 4–10 Yrs (Head: 50cm / 20in)</option>
-      <option value="teen">Teen / Small Adult (Head: 53cm / 21in)</option>
-      <option value="adultM">Medium Adult (Head: 57cm / 22.5in)</option>
-      <option value="adultL">Large Adult (Head: 60cm / 23.5in)</option>
-    </select>
-  </div>
-
-  <div class="field">
-    <label for="hatStyle">Beanie Fit & Style</label>
-    <select id="hatStyle" onchange="applyPreset()">
-      <option value="fitted" selected>Standard Fitted Beanie</option>
-      <option value="slightSlouch">Slight Slouch (+2.5cm / +1in)</option>
-      <option value="deepSlouch">Deep Slouch (+7.5cm / +3in)</option>
-    </select>
-  </div>
-
-  <div class="field" id="yarnWeightField">
-    <label for="yarnWeight">Yarn Weight (Estimated Gauge)</label>
-    <select id="yarnWeight" onchange="applyPreset()">
-      <option value="fingering">1: Fingering / Sock / 4-Ply (2.75–3.25mm)</option>
-      <option value="sport">2: Sport / Baby / 5-Ply (3.5–3.75mm)</option>
-      <option value="dk" selected>3: DK / Light Worsted / 8-Ply (4.0mm / US 6)</option>
-      <option value="worsted">4: Worsted / Aran / 10-Ply (5.0mm / US 8)</option>
-      <option value="bulky">5: Chunky / Bulky / 12-Ply (6.0–7.0mm / US 10)</option>
-      <option value="superBulky">6: Super Bulky / Super Chunky (8.0–10.0mm / US 11-15)</option>
-    </select>
-  </div>
-
-  <div class="field" id="headCircField">
-    <label for="headCirc">Head Circumference</label>
-    <input type="number" id="headCirc" step="0.1">
-  </div>
-
-  <div class="field" id="totalHeightField">
-    <label for="totalHeight">Total Hat Height</label>
-    <input type="number" id="totalHeight" step="0.1">
-  </div>
-
-  <!-- Custom Gauge Inputs (Hidden in Gauge-Free Mode) -->
-  <div class="field" id="stsGaugeField" style="display:none;">
-    <label for="stsGauge">Stitches per unit (Gauge Swatch)</label>
-    <input type="number" id="stsGauge" step="0.1">
-  </div>
-
-  <div class="field" id="rowsGaugeField" style="display:none;">
-    <label for="rowsGauge">Rows/Rounds per unit (Gauge Swatch)</label>
-    <input type="number" id="rowsGauge" step="0.1">
-  </div>
-
-  <button type="button" onclick="calculatePattern()">Calculate Pattern</button>
-
-  <div class="results" id="output" style="display:none;">
-    <h3 id="outTitle">Your Pattern Instructions</h3>
-    <p><strong>Finished Hat Circumference (-10% Ease):</strong> <span id="outCirc"></span> <span class="unitLabel"></span></p>
-    <p><strong>Target Crown Diameter:</strong> <span id="outCrown"></span> <span class="unitLabel"></span></p>
-    <p><strong>Target Main Stitch Count:</strong> <span id="outStitches"></span> sts</p>
-    
-    <div id="instructionsContainer"></div>
-  </div>
-
+  <!-- Knitting Logic & App Script -->
   <script>
-    let currentMode = 'gaugeFree';
-
-    const presets = {
-      microPreemie: { cm: { circ: 22, height: 8.5 },  in: { circ: 8.5,  height: 3.5 } },
-      preemie:      { cm: { circ: 29, height: 11.5 }, in: { circ: 11.5, height: 4.5 } },
-      newborn:      { cm: { circ: 34, height: 13.0 }, in: { circ: 13.5, height: 5.0 } },
-      baby3_6:      { cm: { circ: 37, height: 14.0 }, in: { circ: 14.5, height: 5.5 } },
-      baby6_12:     { cm: { circ: 41, height: 16.5 }, in: { circ: 16.5, height: 6.5 } },
-      toddler:      { cm: { circ: 46, height: 18.0 }, in: { circ: 18.0, height: 7.0 } },
-      child:        { cm: { circ: 50, height: 20.0 }, in: { circ: 20.0, height: 8.0 } },
-      teen:         { cm: { circ: 53, height: 21.5 }, in: { circ: 21.0, height: 8.5 } },
-      adultM:       { cm: { circ: 57, height: 23.0 }, in: { circ: 22.5, height: 9.0 } },
-      adultL:       { cm: { circ: 60, height: 24.0 }, in: { circ: 23.5, height: 9.5 } }
+    // Knitter Data Constants
+    const YARN_WEIGHTS = {
+      '1': { category: '1', name: 'Fingering / Sock', plyName: '4-ply', defaultStitchGauge: 28, defaultRowGauge: 36, needleMm: 2.75, needleUS: 'US 2', brimMm: 2.25, brimUS: 'US 1', metersPer100g: 400 },
+      '2': { category: '2', name: 'Sport', plyName: '5-ply', defaultStitchGauge: 24, defaultRowGauge: 32, needleMm: 3.5, needleUS: 'US 4', brimMm: 3.0, brimUS: 'US 2.5', metersPer100g: 330 },
+      '3': { category: '3', name: 'DK / Light Worsted', plyName: '8-ply', defaultStitchGauge: 22, defaultRowGauge: 28, needleMm: 4.0, needleUS: 'US 6', brimMm: 3.5, brimUS: 'US 4', metersPer100g: 250 },
+      '4': { category: '4', name: 'Worsted / Aran', plyName: '10-ply', defaultStitchGauge: 18, defaultRowGauge: 24, needleMm: 5.0, needleUS: 'US 8', brimMm: 4.5, brimUS: 'US 7', metersPer100g: 200 },
+      '5': { category: '5', name: 'Bulky / Chunky', plyName: '12-ply', defaultStitchGauge: 14, defaultRowGauge: 20, needleMm: 6.0, needleUS: 'US 10', brimMm: 5.5, brimUS: 'US 9', metersPer100g: 130 },
+      '6': { category: '6', name: 'Super Bulky', plyName: '14-ply+', defaultStitchGauge: 10, defaultRowGauge: 14, needleMm: 9.0, needleUS: 'US 13', brimMm: 8.0, brimUS: 'US 11', metersPer100g: 80 }
     };
 
-    const gauges = {
-      fingering:  { cm: { sts: 3.0, rows: 4.0 }, in: { sts: 7.5, rows: 10.0 } },
-      sport:      { cm: { sts: 2.6, rows: 3.4 }, in: { sts: 6.5, rows: 8.5 } },
-      dk:         { cm: { sts: 2.2, rows: 3.0 }, in: { sts: 5.5, rows: 7.5 } },
-      worsted:    { cm: { sts: 1.8, rows: 2.4 }, in: { sts: 4.5, rows: 6.0 } },
-      bulky:      { cm: { sts: 1.4, rows: 1.8 }, in: { sts: 3.5, rows: 4.5 } },
-      superBulky: { cm: { sts: 1.0, rows: 1.3 }, in: { sts: 2.5, rows: 3.2 } }
+    const SIZE_PRESETS = [
+      { id: 'preemie', label: 'Preemie', cm: 33.0, in: 13.0, heightCm: 12.5 },
+      { id: 'baby-0-6m', label: 'Baby (0-6 mo)', cm: 38.0, in: 15.0, heightCm: 15.0 },
+      { id: 'baby-6-12m', label: 'Baby (6-12 mo)', cm: 43.0, in: 17.0, heightCm: 17.0 },
+      { id: 'toddler', label: 'Toddler (1-3 yr)', cm: 48.0, in: 19.0, heightCm: 19.0 },
+      { id: 'child', label: 'Child (4-10 yr)', cm: 51.0, in: 20.0, heightCm: 20.5 },
+      { id: 'teen-small', label: 'Teen / Adult S', cm: 53.5, in: 21.0, heightCm: 21.5 },
+      { id: 'adult-med', label: 'Adult Medium', cm: 56.0, in: 22.0, heightCm: 22.5 },
+      { id: 'adult-large', label: 'Adult Large', cm: 59.5, in: 23.5, heightCm: 23.5 }
+    ];
+
+    // State
+    const state = {
+      mode: 'gauge-free',
+      units: 'metric',
+      construction: 'bottom-up',
+      yarnWeight: '4',
+      sizePreset: 'adult-med',
+      fitType: 'fitted',
+      ribbingStyle: '1x1',
+      customStitchGauge: 18,
+      customRowGauge: 24,
+      savedRecipes: []
     };
 
-    function setMode(mode) {
-      currentMode = mode;
-      const btnFree = document.getElementById('btnGaugeFree');
-      const btnCustom = document.getElementById('btnCustom');
-      const helpText = document.getElementById('modeHelp');
-      const stitchNote = document.getElementById('stitchNote');
-      const stsField = document.getElementById('stsGaugeField');
-      const rowsField = document.getElementById('rowsGaugeField');
-      const yarnField = document.getElementById('yarnWeightField');
-
-      if (mode === 'gaugeFree') {
-        btnFree.classList.add('active');
-        btnCustom.classList.remove('active');
-        helpText.innerHTML = "<strong>Gauge-Free Mode:</strong> Pick a target size and yarn weight to get instant stitch counts without swatching!";
-        stitchNote.style.display = 'block';
-        stsField.style.display = 'none';
-        rowsField.style.display = 'none';
-        yarnField.style.display = 'flex';
-        applyPreset();
-      } else {
-        btnCustom.classList.add('active');
-        btnFree.classList.remove('active');
-        helpText.innerHTML = "<strong>Custom Swatch Mode:</strong> Enter your head/hat dimensions and exact swatch gauge measurements for a tailor-made fit.";
-        stitchNote.style.display = 'none';
-        stsField.style.display = 'flex';
-        rowsField.style.display = 'flex';
-        yarnField.style.display = 'none';
+    // Load initial recipes from localStorage
+    function loadSavedRecipes() {
+      try {
+        const raw = localStorage.getItem('universal_beanie_standalone_recipes');
+        if (raw) {
+          state.savedRecipes = JSON.parse(raw);
+        } else {
+          // Pre-seed 1 demo recipe
+          state.savedRecipes = [{
+            id: 'rec-1',
+            title: 'Classic Wool Worsted Beanie',
+            yarn: 'Cascade 220',
+            notes: 'Knit in the round with 1x1 ribbing.',
+            createdAt: new Date().toLocaleDateString(),
+            config: { ...state }
+          }];
+          saveRecipesToStorage();
+        }
+      } catch (e) {
+        state.savedRecipes = [];
       }
+      updateRecipeBadge();
     }
 
-    function applyPreset() {
-      const unit = document.getElementById('unit').value;
-      const sizeKey = document.getElementById('sizePreset').value;
-      const yarnKey = document.getElementById('yarnWeight').value;
-      const style = document.getElementById('hatStyle').value;
-
-      let baseHeight = presets[sizeKey][unit].height;
-      if (style === 'slightSlouch') {
-        baseHeight += (unit === 'cm' ? 2.5 : 1.0);
-      } else if (style === 'deepSlouch') {
-        baseHeight += (unit === 'cm' ? 7.5 : 3.0);
-      }
-
-      document.getElementById('headCirc').value = presets[sizeKey][unit].circ;
-      document.getElementById('totalHeight').value = baseHeight.toFixed(1);
-      document.getElementById('stsGauge').value = gauges[yarnKey][unit].sts;
-      document.getElementById('rowsGauge').value = gauges[yarnKey][unit].rows;
+    function saveRecipesToStorage() {
+      try {
+        localStorage.setItem('universal_beanie_standalone_recipes', JSON.stringify(state.savedRecipes));
+      } catch (e) {}
+      updateRecipeBadge();
     }
 
+    function updateRecipeBadge() {
+      document.getElementById('recipe-count-badge').textContent = state.savedRecipes.length;
+    }
+
+    // Core Calculation Logic
     function calculatePattern() {
-      const construction = document.getElementById('construction').value;
-      const unit = document.getElementById('unit').value;
-      const headCirc = parseFloat(document.getElementById('headCirc').value);
-      const totalHeight = parseFloat(document.getElementById('totalHeight').value);
-      const stsGauge = parseFloat(document.getElementById('stsGauge').value);
-      const rowsGauge = parseFloat(document.getElementById('rowsGauge').value);
+      const isMetric = state.units === 'metric';
+      const activeSize = SIZE_PRESETS.find(s => s.id === state.sizePreset) || SIZE_PRESETS[6];
+      const targetHeadCirc = isMetric ? activeSize.cm : activeSize.in;
+      const baseHeight = isMetric ? activeSize.heightCm : (activeSize.heightCm / 2.54);
 
-      if (!headCirc || !totalHeight || !stsGauge || !rowsGauge) {
-        alert("Please ensure all fields are filled.");
+      // Gauge resolution
+      let stsPer10cmOr4in, rowsPer10cmOr4in;
+      if (state.mode === 'gauge-free') {
+        const yarn = YARN_WEIGHTS[state.yarnWeight];
+        stsPer10cmOr4in = yarn.defaultStitchGauge;
+        rowsPer10cmOr4in = yarn.defaultRowGauge;
+      } else {
+        stsPer10cmOr4in = parseFloat(state.customStitchGauge) || 18;
+        rowsPer10cmOr4in = parseFloat(state.customRowGauge) || 24;
+      }
+
+      const stsPerUnit = isMetric ? (stsPer10cmOr4in / 10.0) : (stsPer10cmOr4in / 4.0);
+      const rowsPerUnit = isMetric ? (rowsPer10cmOr4in / 10.0) : (rowsPer10cmOr4in / 4.0);
+
+      // Fit Ease
+      let easePercent = -0.12;
+      let heightAdj = 0;
+      let brimHeight = isMetric ? 3.8 : 1.5;
+
+      if (state.fitType === 'slouchy') {
+        easePercent = -0.05;
+        heightAdj = isMetric ? 5.5 : 2.2;
+      } else if (state.fitType === 'folded-brim') {
+        easePercent = -0.12;
+        brimHeight = isMetric ? 8.5 : 3.3;
+      }
+
+      const finishedCirc = targetHeadCirc * (1 + easePercent);
+      let rawSts = Math.round(finishedCirc * stsPerUnit);
+
+      // Multiple rounding (8-stitch crown shaping)
+      let castOnSts = Math.round(rawSts / 8) * 8;
+      if (state.ribbingStyle === '2x2' && castOnSts % 4 !== 0) {
+        castOnSts = Math.round(castOnSts / 4) * 4;
+      }
+      if (castOnSts < 40) castOnSts = 40;
+
+      const totalHeight = baseHeight + heightAdj;
+      const crownHeight = isMetric ? 5.0 : 2.0;
+      const bodyHeight = Math.max(isMetric ? 4.0 : 1.5, totalHeight - brimHeight - crownHeight);
+
+      // Yardage estimate
+      const estMeters = Math.round((castOnSts * (totalHeight * rowsPerUnit) * 0.05) + 30);
+      const yarnInfo = YARN_WEIGHTS[state.yarnWeight];
+
+      return {
+        targetHeadCirc,
+        finishedCirc: finishedCirc.toFixed(1),
+        totalHeight: totalHeight.toFixed(1),
+        brimHeight: brimHeight.toFixed(1),
+        bodyHeight: bodyHeight.toFixed(1),
+        crownHeight: crownHeight.toFixed(1),
+        castOnSts,
+        estMeters,
+        estYards: Math.round(estMeters * 1.093),
+        yarnInfo,
+        activeSize
+      };
+    }
+
+    // Render UI
+    function render() {
+      const calc = calculatePattern();
+      const isMetric = state.units === 'metric';
+      const unitStr = isMetric ? 'cm' : 'in';
+
+      // Update Top Metrics
+      document.getElementById('pattern-title').textContent = `${calc.activeSize.label} ${calc.yarnInfo.name} Beanie`;
+      document.getElementById('metric-cast-on').textContent = calc.castOnSts;
+      document.getElementById('metric-finished-circ').textContent = calc.finishedCirc;
+      document.getElementById('unit-circ-label').textContent = unitStr;
+      document.getElementById('metric-total-height').textContent = calc.totalHeight;
+      document.getElementById('unit-height-label').textContent = unitStr;
+      document.getElementById('metric-est-yarn').textContent = isMetric ? calc.estMeters : calc.estYards;
+      document.getElementById('unit-yarn-label').textContent = isMetric ? 'meters' : 'yards';
+
+      document.getElementById('head-circ-display').textContent = `${calc.targetHeadCirc.toFixed(1)} ${unitStr}`;
+
+      // Materials
+      document.getElementById('mat-needle-body').textContent = isMetric ? `${calc.yarnInfo.needleMm} mm (${calc.yarnInfo.needleUS})` : `${calc.yarnInfo.needleUS} (${calc.yarnInfo.needleMm} mm)`;
+      document.getElementById('mat-needle-brim').textContent = isMetric ? `${calc.yarnInfo.brimMm} mm (${calc.yarnInfo.brimUS})` : `${calc.yarnInfo.brimUS} (${calc.yarnInfo.brimMm} mm)`;
+
+      // Instructions
+      const instDiv = document.getElementById('instructions-container');
+      instDiv.innerHTML = '';
+
+      const isBottomUp = state.construction === 'bottom-up';
+
+      const steps = isBottomUp ? [
+        { title: '1. Cast On', desc: `Using your smaller brim needle (${calc.yarnInfo.brimMm}mm), cast on ${calc.castOnSts} stitches loosely. Place marker (PM) and join in the round, being careful not to twist stitches.` },
+        { title: '2. Work Brim Ribbing', desc: `Work in ${state.ribbingStyle === '1x1' ? '*K1, P1*' : state.ribbingStyle === '2x2' ? '*K2, P2*' : 'Stockinette stitch'} for ${calc.brimHeight} ${unitStr}.` },
+        { title: '3. Body Stockinette', desc: `Switch to larger body needles (${calc.yarnInfo.needleMm}mm). Work in plain knit every round until entire piece measures ${calc.bodyHeight} ${unitStr} from cast on edge.` },
+        { title: '4. Crown Decrease (8 Radial Wedges)', desc: `Divide stitches into 8 equal sections (${calc.castOnSts / 8} sts per wedge). Round 1: *Knit to 2 sts before marker, K2tog*. Round 2: Knit all sts plain. Repeat until 8-16 sts remain.` },
+        { title: '5. Finishing', desc: `Cut yarn leaving an 8-inch tail. Thread through remaining stitches with a tapestry needle, pull tight like a drawstring, and weave in all ends securely.` }
+      ] : [
+        { title: '1. Top-Down Apex Cast On', desc: `Using Double-Pointed Needles (DPNs), cast on 8 stitches. Divide evenly across needles and join in the round.` },
+        { title: '2. Crown Radial Increases', desc: `Increase 8 stitches every round/alternate round using Make 1 (M1) or Knit Front & Back (KFB) until reaching full circumference of ${calc.castOnSts} stitches.` },
+        { title: '3. Body Section', desc: `Knit all rounds plain in stockinette until hat measures ${(parseFloat(calc.totalHeight) - parseFloat(calc.brimHeight)).toFixed(1)} ${unitStr} from top apex.` },
+        { title: '4. Brim Ribbing', desc: `Switch to smaller needles. Work ${state.ribbingStyle} ribbing for ${calc.brimHeight} ${unitStr}.` },
+        { title: '5. Elastic Bind Off', desc: `Bind off loosely in pattern using a stretchy or sewn tubular bind off. Weave in ends.` }
+      ];
+
+      steps.forEach((s, idx) => {
+        const item = document.createElement('div');
+        item.className = 'p-3 bg-stone-50 rounded-xl border border-stone-200';
+        item.innerHTML = `
+          <div class="flex items-center gap-2 mb-1">
+            <input type="checkbox" class="rounded accent-amber-700 w-4 h-4 cursor-pointer" />
+            <h4 class="font-bold text-stone-900">${s.title}</h4>
+          </div>
+          <p class="text-stone-600 pl-6 leading-relaxed">${s.desc}</p>
+        `;
+        instDiv.appendChild(item);
+      });
+
+      // Refresh lucide icons
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    }
+
+    // Init yarn chips
+    function initYarnChips() {
+      const container = document.getElementById('yarn-weight-chips');
+      container.innerHTML = '';
+      Object.entries(YARN_WEIGHTS).forEach(([key, y]) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `p-1.5 rounded-xl border text-center transition-all ${state.yarnWeight === key ? 'border-amber-600 bg-amber-50 font-bold text-amber-900 ring-1 ring-amber-500' : 'border-stone-200 text-stone-700 hover:bg-stone-50'}`;
+        btn.innerHTML = `<span class="block text-xs font-black">#${key}</span><span class="block text-3xs truncate">${y.name.split('/')[0]}</span>`;
+        btn.addEventListener('click', () => {
+          state.yarnWeight = key;
+          initYarnChips();
+          render();
+        });
+        container.appendChild(btn);
+      });
+    }
+
+    // Init Size Preset Select
+    function initSizeSelect() {
+      const select = document.getElementById('select-size-preset');
+      select.innerHTML = '';
+      SIZE_PRESETS.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `${s.label} (${state.units === 'metric' ? s.cm + ' cm' : s.in + '"'})`;
+        if (s.id === state.sizePreset) opt.selected = true;
+        select.appendChild(opt);
+      });
+      select.addEventListener('change', (e) => {
+        state.sizePreset = e.target.value;
+        render();
+      });
+    }
+
+    // Event Bindings
+    document.addEventListener('DOMContentLoaded', () => {
+      initYarnChips();
+      initSizeSelect();
+      loadSavedRecipes();
+      render();
+
+      // Mode switch
+      const btnGaugeFree = document.getElementById('mode-btn-gauge-free');
+      const btnCustomSwatch = document.getElementById('mode-btn-custom-swatch');
+      const secGaugeFree = document.getElementById('section-gauge-free-yarn');
+      const secCustomSwatch = document.getElementById('section-custom-swatch');
+
+      btnGaugeFree.addEventListener('click', () => {
+        state.mode = 'gauge-free';
+        btnGaugeFree.className = 'py-2 text-xs font-bold rounded-lg transition-all bg-white text-amber-900 shadow-xs';
+        btnCustomSwatch.className = 'py-2 text-xs font-bold rounded-lg transition-all text-stone-600 hover:text-stone-900';
+        secGaugeFree.classList.remove('hidden');
+        secCustomSwatch.classList.add('hidden');
+        render();
+      });
+
+      btnCustomSwatch.addEventListener('click', () => {
+        state.mode = 'custom-swatch';
+        btnCustomSwatch.className = 'py-2 text-xs font-bold rounded-lg transition-all bg-white text-amber-900 shadow-xs';
+        btnGaugeFree.className = 'py-2 text-xs font-bold rounded-lg transition-all text-stone-600 hover:text-stone-900';
+        secCustomSwatch.classList.remove('hidden');
+        secGaugeFree.classList.add('hidden');
+        render();
+      });
+
+      // Units
+      const btnMetric = document.getElementById('unit-btn-metric');
+      const btnImperial = document.getElementById('unit-btn-imperial');
+      btnMetric.addEventListener('click', () => {
+        state.units = 'metric';
+        btnMetric.className = 'py-1.5 text-xs font-bold rounded-md bg-white text-stone-900 shadow-2xs';
+        btnImperial.className = 'py-1.5 text-xs font-bold rounded-md text-stone-600';
+        document.getElementById('gauge-unit-label').textContent = 'per 10 cm';
+        initSizeSelect();
+        render();
+      });
+      btnImperial.addEventListener('click', () => {
+        state.units = 'imperial';
+        btnImperial.className = 'py-1.5 text-xs font-bold rounded-md bg-white text-stone-900 shadow-2xs';
+        btnMetric.className = 'py-1.5 text-xs font-bold rounded-md text-stone-600';
+        document.getElementById('gauge-unit-label').textContent = 'per 4 in';
+        initSizeSelect();
+        render();
+      });
+
+      // Construction
+      document.getElementById('select-construction').addEventListener('change', (e) => {
+        state.construction = e.target.value;
+        render();
+      });
+
+      // Fit Types
+      document.querySelectorAll('#fit-type-chips button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.fitType = btn.dataset.fit;
+          document.querySelectorAll('#fit-type-chips button').forEach(b => {
+            b.className = b === btn ? 'p-2 rounded-xl border text-center border-amber-600 bg-amber-50/80 font-bold text-amber-900 text-xs' : 'p-2 rounded-xl border text-center border-stone-200 text-stone-600 hover:bg-stone-50 text-xs';
+          });
+          render();
+        });
+      });
+
+      // Ribbing Styles
+      document.querySelectorAll('#ribbing-style-chips button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.ribbingStyle = btn.dataset.rib;
+          document.querySelectorAll('#ribbing-style-chips button').forEach(b => {
+            b.className = b === btn ? 'py-1.5 px-2 rounded-lg border border-amber-600 bg-amber-50 text-amber-900 text-xs font-bold' : 'py-1.5 px-2 rounded-lg border border-stone-200 text-stone-600 text-xs';
+          });
+          render();
+        });
+      });
+
+      // Custom Swatch Inputs
+      document.getElementById('input-stitch-gauge').addEventListener('input', (e) => {
+        state.customStitchGauge = parseFloat(e.target.value) || 18;
+        render();
+      });
+      document.getElementById('input-row-gauge').addEventListener('input', (e) => {
+        state.customRowGauge = parseFloat(e.target.value) || 24;
+        render();
+      });
+
+      // Print
+      document.getElementById('btn-print-recipe').addEventListener('click', () => {
+        window.print();
+      });
+
+      // Guides Modal
+      const modalGuides = document.getElementById('modal-guides');
+      document.getElementById('btn-open-guides').addEventListener('click', () => modalGuides.classList.remove('hidden'));
+      document.getElementById('btn-close-guides').addEventListener('click', () => modalGuides.classList.add('hidden'));
+
+      // Save Recipe Modal
+      const modalSave = document.getElementById('modal-save-recipe');
+      document.getElementById('btn-save-recipe-trigger').addEventListener('click', () => {
+        const calc = calculatePattern();
+        document.getElementById('input-recipe-title').value = `${calc.activeSize.label} ${calc.yarnInfo.name} Beanie`;
+        modalSave.classList.remove('hidden');
+      });
+      document.getElementById('btn-close-save-modal').addEventListener('click', () => modalSave.classList.add('hidden'));
+      document.getElementById('btn-cancel-save').addEventListener('click', () => modalSave.classList.add('hidden'));
+
+      document.getElementById('form-save-recipe').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const title = document.getElementById('input-recipe-title').value;
+        const yarn = document.getElementById('input-recipe-yarn').value;
+        const notes = document.getElementById('input-recipe-notes').value;
+
+        const newRec = {
+          id: 'rec-' + Date.now(),
+          title: title || 'Custom Beanie',
+          yarn: yarn || '',
+          notes: notes || '',
+          createdAt: new Date().toLocaleDateString(),
+          config: JSON.parse(JSON.stringify(state))
+        };
+        state.savedRecipes.unshift(newRec);
+        saveRecipesToStorage();
+        modalSave.classList.add('hidden');
+        renderDrawerRecipes();
+      });
+
+      // My Recipes Drawer
+      const drawerRecipes = document.getElementById('drawer-recipes');
+      document.getElementById('btn-open-recipes').addEventListener('click', () => {
+        renderDrawerRecipes();
+        drawerRecipes.classList.remove('hidden');
+      });
+      document.getElementById('btn-close-recipes-drawer').addEventListener('click', () => drawerRecipes.classList.add('hidden'));
+    });
+
+    function renderDrawerRecipes() {
+      const container = document.getElementById('saved-recipes-list');
+      container.innerHTML = '';
+      if (state.savedRecipes.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-stone-400">No saved recipes yet.</div>';
         return;
       }
-
-      const easeCirc = headCirc * 0.90;
-      const crownDiameter = easeCirc / Math.PI;
-      const targetStitches = Math.max(8, Math.round((easeCirc * stsGauge) / 8) * 8);
-
-      document.getElementById('outCirc').textContent = easeCirc.toFixed(1);
-      document.getElementById('outCrown').textContent = crownDiameter.toFixed(1);
-      document.getElementById('outStitches').textContent = targetStitches;
-
-      const container = document.getElementById('instructionsContainer');
-
-      if (construction === 'topDown') {
-        const crownRounds = targetStitches / 8;
-        const crownHeight = crownDiameter / 2;
-        const bodyHeight = Math.max(0, totalHeight - crownHeight);
-        const bodyRounds = Math.round(bodyHeight * rowsGauge);
-
-        container.innerHTML = `
-          <h4>Top-Down Steps (8-Stitch Method):</h4>
-          <ol class="step-list">
-            <li><strong>Start Ring:</strong> Cast on 8 stitches into a magic ring or center loop and join in the round.</li>
-            <li><strong>Increase Phase:</strong> Work alternating rounds (<strong>Round 1:</strong> Increase by 8 sts; <strong>Round 2:</strong> Knit all sts with no increases). Repeat until you reach <strong>${targetStitches} sts</strong> (${crownRounds} increase rounds total).</li>
-            <li><strong>Gauge Checkpoint:</strong> Your flat crown circle should measure ~<strong>${crownDiameter.toFixed(1)} ${unit}</strong> across.</li>
-            <li><strong>Body Section:</strong> Work straight in pattern (knit all rounds) without increasing for ~<strong>${bodyRounds} rounds</strong> until the beanie measures <strong>${totalHeight.toFixed(1)} ${unit}</strong> from top to bottom.</li>
-          </ol>
+      state.savedRecipes.forEach((r, idx) => {
+        const item = document.createElement('div');
+        item.className = 'p-3 rounded-xl border border-stone-200 bg-stone-50 hover:border-amber-400 transition-all';
+        item.innerHTML = `
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <h4 class="font-bold text-stone-900">${r.title}</h4>
+            <button type="button" class="btn-del-rec text-stone-400 hover:text-red-600 p-1" data-id="${r.id}">&times;</button>
+          </div>
+          ${r.yarn ? `<p class="text-2xs text-amber-800 font-semibold mb-1">${r.yarn}</p>` : ''}
+          ${r.notes ? `<p class="text-2xs text-stone-600 italic mb-2">"${r.notes}"</p>` : ''}
+          <div class="flex items-center justify-between pt-2 border-t border-stone-200/70">
+            <span class="text-3xs text-stone-400">${r.createdAt}</span>
+            <button type="button" class="btn-load-rec px-2.5 py-1 bg-amber-800 text-white rounded font-bold text-2xs" data-id="${r.id}">Load</button>
+          </div>
         `;
-      } else {
-        const totalRows = Math.round(totalHeight * rowsGauge);
-        const crownDecreaseHeight = crownDiameter / 2;
-        const bodyStraightHeight = Math.max(0, totalHeight - crownDecreaseHeight);
-        const straightRows = Math.round(bodyStraightHeight * rowsGauge);
+        container.appendChild(item);
+      });
 
-        container.innerHTML = `
-          <h4>Bottom-Up Steps (Brim First):</h4>
-          <ol class="step-list">
-            <li><strong>Cast On:</strong> Cast on <strong>${targetStitches} sts</strong> (multiple of 8 for ribbing/decreases) and join in the round.</li>
-            <li><strong>Brim & Body:</strong> Work ribbing or body stitch pattern straight for <strong>${straightRows} rounds</strong> (~${bodyStraightHeight.toFixed(1)} ${unit}).</li>
-            <li><strong>Crown Decreases:</strong> Begin decrease rounds, alternating between a decrease round (decreasing 8 sts per round) and a plain knit round until 8 sts remain.</li>
-            <li><strong>Finish:</strong> Cut yarn, thread through remaining 8 sts, cinch tight, and weave in ends. Total length should measure <strong>${totalHeight.toFixed(1)} ${unit}</strong>.</li>
-          </ol>
-        `;
-      }
+      // Bind delete
+      container.querySelectorAll('.btn-del-rec').forEach(b => {
+        b.addEventListener('click', (e) => {
+          const id = e.target.dataset.id;
+          state.savedRecipes = state.savedRecipes.filter(r => r.id !== id);
+          saveRecipesToStorage();
+          renderDrawerRecipes();
+        });
+      });
 
-      const labels = document.querySelectorAll('.unitLabel');
-      labels.forEach(el => el.textContent = unit);
-
-      document.getElementById('output').style.display = 'block';
+      // Bind load
+      container.querySelectorAll('.btn-load-rec').forEach(b => {
+        b.addEventListener('click', (e) => {
+          const id = e.target.dataset.id;
+          const rec = state.savedRecipes.find(r => r.id === id);
+          if (rec && rec.config) {
+            Object.assign(state, rec.config);
+            initYarnChips();
+            initSizeSelect();
+            render();
+            document.getElementById('drawer-recipes').classList.add('hidden');
+          }
+        });
+      });
     }
-
-    window.onload = function() {
-      setMode('gaugeFree');
-    };
   </script>
-
 </body>
 </html>
