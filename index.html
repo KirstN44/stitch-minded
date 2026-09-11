@@ -1,11 +1,9 @@
----
----
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stitch Minded | Fiber Arts & Creative Tech</title>
+  <title>Stitch Minded | Fiber Arts & Craft Calculators</title>
   <style>
     :root {
       --primary: #1e293b;
@@ -150,7 +148,7 @@
   <main>
     <section class="intro">
       <h2>Welcome</h2>
-      <p>A digital space bringing together traditional handcrafts and interactive web tools. Explore physical yarn patterns, design calculators, and logic-based learning games built for creators.</p>
+      <p>A digital space bringing together traditional handcrafts and interactive web tools. Explore physical yarn patterns, design calculators, and maker utilities built for fiber artists.</p>
     </section>
 
     <!-- Three-Column Hub Grid -->
@@ -169,44 +167,40 @@
         </div>
       </div>
 
-      <!-- Column 2: Educational Apps -->
+      <!-- Column 2: Handcraft Guides -->
       <div class="column">
-        <h2>Educational Apps</h2>
-        <p>Interactive web builds and mental arithmetic tools.</p>
+        <h2>Handcraft Guides</h2>
+        <p>Tutorials, techniques, and fiber math resources.</p>
         
         <ul class="link-list">
           <li>
-            <a href="https://kirstn44.github.io/Word-Orbit/" target="_blank">&rarr; Word Orbit Suite</a>
-            <p>Interactive web games for vocabulary and word building.</p>
-          </li>
-          <li>
-            <a href="https://kirstn44.github.io/Maths-Orbit/" target="_blank">&rarr; Maths Orbit Arcade</a>
-            <p>Fast-paced mental math challenges to test arithmetic speed.</p>
+            <a href="#blog">&rarr; Stitch Notes & Articles</a>
+            <p>Explore tutorials on crochet, knitting geometry, and gauge math.</p>
           </li>
         </ul>
       </div>
 
-  <!-- Column 3: Interactive Utilities -->
-<div class="column">
-  <h2>Interactive Utilities</h2>
-  <p>Digital helpers and maker tools.</p>
+      <!-- Column 3: Interactive Utilities -->
+      <div class="column">
+        <h2>Interactive Utilities</h2>
+        <p>Digital helpers and maker tools.</p>
 
-  <ul class="link-list">
-    <li>
-      <a href="round-counter.html">Digital Round Counter &rarr;</a>
-      <p>Tap-to-count round tracker with local auto-save.</p>
-    </li>
-    <li>
-      <a href="yarn-converter.html"> Yarn Stash & Skein Converter &rarr;</a>
-      <p>Calculate remaining yardage by weighing partial skeins.</p>
-    </li>
-  </ul>
-</div>
+        <ul class="link-list">
+          <li>
+            <a href="round-counter.html">Digital Round Counter &rarr;</a>
+            <p>Tap-to-count round tracker with local auto-save.</p>
+          </li>
+          <li>
+            <a href="yarn-converter.html">Yarn Stash & Skein Converter &rarr;</a>
+            <p>Calculate remaining yardage by weighing partial skeins.</p>
+          </li>
+        </ul>
+      </div>
 
     </section>
 
     <!-- Blog Section -->
-    <section class="blog-section">
+    <section class="blog-section" id="blog">
       <h2>Latest Notes & Articles</h2>
       
       {% for post in site.posts %}
