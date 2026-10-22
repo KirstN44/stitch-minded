@@ -737,4 +737,246 @@
         const optBrim = document.createElement('option');
         optBrim.value = n.label;
         optBrim.textContent = `${n.label}${n.inBetween ? ' ★ (In-between)' : ''}`;
-        if (n.label === state.brimNeedleSize) optBrim.selected =
+        if (n.label === state.brimNeedleSize) optBrim.selected = true;
+        brimSelect.appendChild(optBrim);
+      });
+
+      bodySelect.value = state.bodyNeedleSize;
+      brimSelect.value = state.brimNeedleSize;
+
+      bodySelect.addEventListener('change', (e) => {
+        state.bodyNeedleSize = e.target.value;
+        render();
+      });
+
+      brimSelect.addEventListener('change', (e) => {
+        state.brimNeedleSize = e.target.value;
+        render();
+      });
+    }
+
+    function initSizeSelect() {
+      const select = document.getElementById('select-size-preset');
+      select.innerHTML = '';
+
+      const groups = [
+        { label: '🏥 NICU & Preemie (Hospital Safe & Charity)', cat: 'preemie-nicu' },
+        { label: '👶 Expanded Baby (0–12 Months)', cat: 'baby' },
+        { label: '🧒 Kids & Teens', cat: 'kids-teens' },
+        { label: '🧑 Adult Sizes', cat: 'adult' }
+      ];
+
+      groups.forEach(g => {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = g.label;
+        
+        SIZE_PRESETS.filter(s => s.category === g.cat).forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          const isMetric = state.units === 'metric';
+          const circVal = isMetric ? `${s.cm} cm` : `${s.in} in`;
+          opt.textContent = `${s.label} — Head Circ: ${circVal} (${s.weightDesc})`;
+          if (s.id === state.sizePreset) opt.selected = true;
+          optgroup.appendChild(opt);
+        });
+
+        select.appendChild(optgroup);
+      });
+
+      select.value = state.sizePreset;
+
+      select.addEventListener('change', (e) => {
+        state.sizePreset = e.target.value;
+        render();
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSavedRecipes();
+      initYarnChips();
+      initNeedleSelects();
+      initSizeSelect();
+
+      // Event Listeners for Units
+      document.getElementById('unit-btn-metric').addEventListener('click', () => {
+        state.units = 'metric';
+        document.getElementById('unit-btn-metric').className = 'py-1.5 text-xs font-bold rounded-md bg-white text-stone-800 shadow-2xs';
+        document.getElementById('unit-btn-imperial').className = 'py-1.5 text-xs font-bold rounded-md text-stone-500';
+        document.querySelectorAll('.gauge-unit-text').forEach(el => el.textContent = '10 cm');
+        initSizeSelect();
+        render();
+      });
+
+      document.getElementById('unit-btn-imperial').addEventListener('click', () => {
+        state.units = 'imperial';
+        document.getElementById('unit-btn-imperial').className = 'py-1.5 text-xs font-bold rounded-md bg-white text-stone-800 shadow-2xs';
+        document.getElementById('unit-btn-metric').className = 'py-1.5 text-xs font-bold rounded-md text-stone-500';
+        document.querySelectorAll('.gauge-unit-text').forEach(el => el.textContent = '4 inches');
+        initSizeSelect();
+        render();
+      });
+
+      // Construction Direction
+      document.getElementById('select-construction').addEventListener('change', (e) => {
+        state.construction = e.target.value;
+        render();
+      });
+
+      // Fit Type Chips
+      document.querySelectorAll('#fit-type-chips button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#fit-type-chips button').forEach(b => {
+            b.className = 'p-2 rounded-xl border text-center border-stone-200 text-stone-600 hover:bg-stone-50 text-xs';
+          });
+          btn.className = 'p-2 rounded-xl border text-center border-emerald-600 bg-emerald-50 font-bold text-emerald-900 text-xs';
+          state.fitType = btn.getAttribute('data-fit');
+          render();
+        });
+      });
+
+      // Ribbing Style Chips
+      document.querySelectorAll('#ribbing-style-chips button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#ribbing-style-chips button').forEach(b => {
+            b.className = 'py-1 px-2 rounded-lg border border-stone-200 text-stone-600 text-xs';
+          });
+          btn.className = 'py-1 px-2 rounded-lg border border-emerald-600 bg-emerald-50 text-emerald-900 text-xs font-bold';
+          state.ribbingStyle = btn.getAttribute('data-rib');
+          render();
+        });
+      });
+
+      // Gauge Inputs
+      document.getElementById('input-stitch-gauge').addEventListener('input', (e) => {
+        state.stitchGauge = e.target.value;
+        render();
+      });
+
+      document.getElementById('input-row-gauge').addEventListener('input', (e) => {
+        state.rowGauge = e.target.value;
+        render();
+      });
+
+      // Quick Gauge Reset
+      document.getElementById('btn-fill-typical-gauge').addEventListener('click', () => {
+        const y = YARN_WEIGHTS[state.yarnWeight];
+        state.stitchGauge = y.defaultStitchGauge;
+        state.rowGauge = y.defaultRowGauge;
+        document.getElementById('input-stitch-gauge').value = y.defaultStitchGauge;
+        document.getElementById('input-row-gauge').value = y.defaultRowGauge;
+        render();
+      });
+
+      // Needle Helpers
+      document.getElementById('btn-quick-one-down').addEventListener('click', () => {
+        const currentIndex = NEEDLE_SIZES.findIndex(n => n.label === state.bodyNeedleSize);
+        if (currentIndex > 0) {
+          state.brimNeedleSize = NEEDLE_SIZES[currentIndex - 1].label;
+          document.getElementById('select-brim-needle').value = state.brimNeedleSize;
+          render();
+        }
+      });
+
+      document.getElementById('btn-quick-same-needle').addEventListener('click', () => {
+        state.brimNeedleSize = state.bodyNeedleSize;
+        document.getElementById('select-brim-needle').value = state.brimNeedleSize;
+        render();
+      });
+
+      // Modals
+      const charityModal = document.getElementById('modal-charity');
+      document.getElementById('btn-open-charity').addEventListener('click', () => charityModal.classList.remove('hidden'));
+      document.getElementById('btn-quick-charity-link').addEventListener('click', () => charityModal.classList.remove('hidden'));
+      document.getElementById('btn-close-charity').addEventListener('click', () => charityModal.classList.add('hidden'));
+
+      const guidesModal = document.getElementById('modal-guides');
+      document.getElementById('btn-open-guides').addEventListener('click', () => guidesModal.classList.remove('hidden'));
+      document.getElementById('btn-close-guides').addEventListener('click', () => guidesModal.classList.add('hidden'));
+
+      const saveModal = document.getElementById('modal-save-recipe');
+      document.getElementById('btn-save-recipe-modal').addEventListener('click', () => saveModal.classList.remove('hidden'));
+      document.getElementById('btn-close-save-modal').addEventListener('click', () => saveModal.classList.add('hidden'));
+      document.getElementById('btn-cancel-save').addEventListener('click', () => saveModal.classList.add('hidden'));
+
+      const recipesDrawer = document.getElementById('drawer-recipes');
+      document.getElementById('btn-open-recipes').addEventListener('click', () => {
+        renderRecipesList();
+        recipesDrawer.classList.remove('hidden');
+      });
+      document.getElementById('btn-close-recipes-drawer').addEventListener('click', () => recipesDrawer.classList.add('hidden'));
+
+      // Save Recipe Form Submission
+      document.getElementById('form-save-recipe').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const title = document.getElementById('input-recipe-title').value;
+        const yarn = document.getElementById('input-recipe-yarn').value;
+        const notes = document.getElementById('input-recipe-notes').value;
+
+        const newRec = {
+          id: 'rec-' + Date.now(),
+          title,
+          yarn,
+          notes,
+          createdAt: new Date().toLocaleDateString(),
+          config: { ...state }
+        };
+
+        state.savedRecipes.unshift(newRec);
+        saveRecipesToStorage();
+        saveModal.classList.add('hidden');
+        document.getElementById('form-save-recipe').reset();
+      });
+
+      render();
+    });
+
+    function renderRecipesList() {
+      const container = document.getElementById('saved-recipes-list');
+      container.innerHTML = '';
+      if (state.savedRecipes.length === 0) {
+        container.innerHTML = '<p class="text-stone-500 italic">No saved recipes yet.</p>';
+        return;
+      }
+
+      state.savedRecipes.forEach((r) => {
+        const div = document.createElement('div');
+        div.className = 'p-3 bg-stone-50 rounded-xl border border-stone-200 space-y-1.5';
+        div.innerHTML = `
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-stone-900">${r.title}</h4>
+            <span class="text-3xs text-stone-400">${r.createdAt}</span>
+          </div>
+          <p class="text-3xs text-stone-600 font-semibold">${r.yarn || 'Custom Yarn'}</p>
+          <p class="text-3xs text-stone-500 italic">${r.notes || 'No notes added.'}</p>
+          <div class="flex items-center gap-2 pt-1">
+            <button type="button" class="text-3xs px-2 py-1 bg-emerald-700 text-white rounded hover:bg-emerald-800" onclick="loadRecipe('${r.id}')">Load Recipe</button>
+            <button type="button" class="text-3xs px-2 py-1 bg-stone-200 text-stone-700 rounded hover:bg-stone-300" onclick="deleteRecipe('${r.id}')">Delete</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    window.loadRecipe = function(id) {
+      const rec = state.savedRecipes.find(r => r.id === id);
+      if (rec) {
+        Object.assign(state, rec.config);
+        document.getElementById('select-construction').value = state.construction;
+        initSizeSelect();
+        initYarnChips();
+        initNeedleSelects();
+        document.getElementById('input-stitch-gauge').value = state.stitchGauge;
+        document.getElementById('input-row-gauge').value = state.rowGauge;
+        render();
+        document.getElementById('drawer-recipes').classList.add('hidden');
+      }
+    };
+
+    window.deleteRecipe = function(id) {
+      state.savedRecipes = state.savedRecipes.filter(r => r.id !== id);
+      saveRecipesToStorage();
+      renderRecipesList();
+    };
+  </script>
+</body>
+</html>
